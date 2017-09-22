@@ -1,0 +1,35 @@
+{
+  "name": "algorithm-visualizer",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node_modules/.bin/browserify -t [ babelify ] main.js > public/bundle.js",
+    "dev": "node_modules/.bin/watchify -t [ babelify ] -d main.js -o public/bundle.js -v",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "algorithm",
+    "visualize",
+    "machine learning"
+  ],
+  "author": "Petar Ivancevic",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv-safe": "^4.0.4",
+    "express": "^4.15.4",
+    "preact": "^8.2.5",
+    "preact-router": "^2.5.7"
+  },
+  "devDependencies": {
+    "babel-plugin-module-resolver": "^2.7.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
+    "babelify": "^7.3.0",
+    "browserify": "^14.4.0",
+    "watchify": "^3.9.0"
+  },
+  "engines": {
+    "node": "8"
+  }
+}

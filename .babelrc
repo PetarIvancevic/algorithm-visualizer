@@ -1,0 +1,15 @@
+{
+ "presets": ["react",
+    ["env", {
+      "targets": {
+        "node": 8
+      }
+    }]
+  ],
+  "plugins": [
+    ["module-resolver", {
+      "root": ["."]
+    }],
+    ["transform-react-jsx",{"pragma":"h"}]
+  ]
+}
