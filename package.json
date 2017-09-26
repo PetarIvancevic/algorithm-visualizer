@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node_modules/.bin/browserify -t [ babelify ] main.js > public/bundle.js",
-    "dev": "node_modules/.bin/watchify -t [ babelify ] -d main.js -o public/bundle.js -v",
+    "build:css": "postcss styles/main.sss -o public/styles.css",
+    "build:js": "browserify -t [ babelify ] main.js > public/bundle.js",
+    "dev": "run-p -l dev:build:* start",
+    "dev:build:css": "postcss -w styles/main.sss -o public/styles.css",
+    "dev:build:js": "watchify -t [ babelify ] -d main.js -o public/bundle.js -v",
+    "heroku-postbuild": "npm-run-all build:*",
     "start": "node index.js"
   },
   "keywords": [
@@ -22,14 +26,21 @@
     "preact-router": "^2.5.7"
   },
   "devDependencies": {
+    "autoprefixer": "^7.1.4",
     "babel-plugin-module-resolver": "^2.7.1",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
     "babelify": "^7.3.0",
     "browserify": "^14.4.0",
+    "npm-run-all": "^4.1.1",
+    "postcss": "^6.0.12",
+    "postcss-cli": "^4.1.1",
+    "postcss-easy-import": "^3.0.0",
+    "sugarss": "^1.0.0",
     "watchify": "^3.9.0"
   },
   "engines": {
-    "node": "8"
+    "node": "8",
+    "npm": "5"
   }
 }

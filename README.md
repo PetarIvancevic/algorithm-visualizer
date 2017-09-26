@@ -1,7 +1,7 @@
 # Algorithms visualizer
-This repository will show various search algorithms so that anyone can see what is going on in the background.
+This repository will show various search algorithms so that anyone can see what is going on in the background. The reason for creating this is to expand my understanding of algorithms and try out new things.
 
-Heroku link will go `here`
+Heroku [link](https://alg-visual.herokuapp.com/)
 
 # Overview
 I love javascript and testing out new frameworks or design paterns. This is a simple express application which servers `preact` components.

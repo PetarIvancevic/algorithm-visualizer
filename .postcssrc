@@ -1,0 +1,9 @@
+{
+  parser: 'sugarss',
+  plugins: {
+    'autoprefixer': {},
+    'postcss-easy-import': {
+      extensions: ['.sss']
+    }
+  }
+}

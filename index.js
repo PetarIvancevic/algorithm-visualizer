@@ -9,5 +9,9 @@ app.use('/', function (req, res) {
 })
 
 app.listen(process.env.PORT, function () {
-  console.log('Listening on PORT:', process.env.PORT)
+  console.log(`
+    Started application
+    ENV: ${process.env.NODE_ENV}
+    PORT: ${process.env.PORT}
+  `)
 })
