@@ -1,12 +1,18 @@
+import {h, render} from 'preact' //eslint-disable-line
 import Router from 'preact-router'
-import {h, render} from 'preact'
+import Match from 'preact-router/match'
 
-import Home from 'containers/Home'
+import BreadthSearch from 'containers/BreadthSearch'
+import HeaderFooter from 'containers/HeaderFooter'
+import NotFound from 'containers/NotFound'
 
 const App = () => (
-  <Router>
-    <Home path="/" />
-  </Router>
+  <HeaderFooter>
+    <Router>
+      <BreadthSearch path='algorithm/breadth-search' />
+      <NotFound default />
+    </Router>
+  </HeaderFooter>
 )
 
 render(<App />, document.body)

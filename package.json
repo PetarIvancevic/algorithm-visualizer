@@ -10,7 +10,8 @@
     "dev:build:css": "postcss -w styles/main.sss -o public/styles.css",
     "dev:build:js": "watchify -t [ babelify ] -d main.js -o public/bundle.js -v",
     "heroku-postbuild": "npm-run-all build:*",
-    "start": "node index.js"
+    "start": "node index.js",
+    "lint": "standard -v | snazzy"
   },
   "keywords": [
     "algorithm",
@@ -22,8 +23,13 @@
   "dependencies": {
     "dotenv-safe": "^4.0.4",
     "express": "^4.15.4",
+    "lodash": "^4.17.4",
+    "module-alias": "^2.0.1",
+    "npm-run-all": "^4.1.1",
     "preact": "^8.2.5",
-    "preact-router": "^2.5.7"
+    "preact-compat": "^3.17.0",
+    "preact-router": "^2.5.7",
+    "react-router": "^4.2.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.4",
@@ -32,10 +38,14 @@
     "babel-preset-react": "^6.24.1",
     "babelify": "^7.3.0",
     "browserify": "^14.4.0",
-    "npm-run-all": "^4.1.1",
+    "eslint-config-standard-preact": "^1.1.6",
     "postcss": "^6.0.12",
     "postcss-cli": "^4.1.1",
     "postcss-easy-import": "^3.0.0",
+    "postcss-nested": "^2.1.2",
+    "postcss-nesting": "^4.2.1",
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.3",
     "sugarss": "^1.0.0",
     "watchify": "^3.9.0"
   },

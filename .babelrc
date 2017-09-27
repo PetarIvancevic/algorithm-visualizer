@@ -1,18 +1,24 @@
 {
+  "plugins": [
+    ["transform-react-jsx",{
+      "pragma":"h"
+    }],
+    ["module-resolver", {
+      "root": ["."],
+      "extensions": [".js", ".jsx"],
+      "alias": {
+        "react": "preact-compat",
+        "react-dom": "preact-compat",
+        "create-react-class": "preact-compat/lib/create-react-class"
+      }
+    }]
+  ],
   "presets": [
     "react",
     ["env", {
       "targets": {
         "node": 8
       }
-    }]
-  ],
-  "plugins": [
-    ["module-resolver", {
-      "root": ["."]
-    }],
-    ["transform-react-jsx",{
-      "pragma":"h"
     }]
   ]
 }

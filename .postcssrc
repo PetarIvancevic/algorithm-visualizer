@@ -2,6 +2,10 @@
   parser: 'sugarss',
   plugins: {
     'autoprefixer': {},
+    'postcss-nesting': {},
+    'postcss-nested': {
+      'preserveEmpty': true
+    },
     'postcss-easy-import': {
       extensions: ['.sss']
     }
