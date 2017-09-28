@@ -1,7 +1,6 @@
 import _ from 'lodash'
 
 export function breadthSearch (initialNode, solutionFn) {
-  console.log('eeee', initialNode, solutionFn)
   let explored = []
   let frontier = [initialNode]
 

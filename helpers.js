@@ -1,6 +1,8 @@
 import _ from 'lodash'
 import rjs from 'random-js'
 
+import {errorOut} from 'errors'
+
 const rjsEngine = rjs.engines.browserCrypto
 
 function CreateTree (data, depth) {
@@ -21,8 +23,8 @@ function CreateTree (data, depth) {
 
 export function generateTreeWithData (depth = 0, dataType, includeDataArray = []) {
   if (depth > 23) {
-    alert('Please contact the dev for depth over 23!', depth)
-    return
+    global.alert('Please contact the dev for depth over 23!', depth)
+    errorOut('You went to far')
   }
 
   const tree = new CreateTree(new CreateTreeNode(randomOfType(dataType)), depth)
@@ -57,12 +59,12 @@ export function CreateTreeNode (data, parent) {
 }
 
 function randomOfType (types) {
-  switch (types)  {
+  switch (types) {
     case 'number':
       return rjs.integer(0, 9000)(rjsEngine)
     case 'string':
       return rjs.string()(rjsEngine, 10)
     default:
-      throw 'Invalid types'
+      errorOut('Invalid types')
   }
 }
