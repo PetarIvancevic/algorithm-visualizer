@@ -1,0 +1,20 @@
+machine:
+  environment:
+    NODE_ENV: test
+    PORT: 7000
+  node:
+    version: 8.0.0
+
+dependencies:
+  override:
+    - npm install
+
+test:
+  post:
+    - npm run lint
+
+deployment:
+  production:
+    branch: master
+    heroku:
+      appname: alg-visual

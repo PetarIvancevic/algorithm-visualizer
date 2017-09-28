@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/PetarIvancevic/algorithm-visualizer/tree/master.svg?style=svg)](https://circleci.com/gh/PetarIvancevic/algorithm-visualizer/tree/master)
 # Algorithms visualizer
 This repository will show various search algorithms so that anyone can see what is going on in the background. The reason for creating this is to expand my understanding of algorithms and try out new things.
 
