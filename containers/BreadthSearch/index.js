@@ -1,12 +1,12 @@
 import {Component, h} from 'preact' //eslint-disable-line
 
-// import {breadthSearch} from 'algorithms'
-// import {createTreeNode} from 'helpers'
+import {breadthSearch} from 'algorithms'
+import {generateTreeWithData} from 'helpers'
 
 export default class BreadthSearch extends Component {
-  // componentWillMount () {
-  //   console.log(new createTreeNode({chicken: 'moo'}))
-  // }
+  componentWillMount () {
+    const tree = generateTreeWithData(5, 'number')
+  }
 
   render () {
     return (

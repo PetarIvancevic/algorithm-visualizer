@@ -1,3 +1,3 @@
-export function breadthSearch () {
+export function breadthSearch (problem, useBreadthFirst = false) {
 
 }
