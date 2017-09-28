@@ -3,11 +3,8 @@ import rjs from 'random-js'
 
 const rjsEngine = rjs.engines.browserCrypto
 
-function sumUp (num) {
-  return (num * (num + 1)) / 2
-}
-
 function CreateTree (data, depth) {
+  this.root = data
   this.depth = 0
   this.nodes = [data]
 
@@ -22,7 +19,7 @@ function CreateTree (data, depth) {
   }
 }
 
-export function generateTreeWithData (depth = 0, dataType) {
+export function generateTreeWithData (depth = 0, dataType, includeDataArray = []) {
   if (depth > 23) {
     alert('Please contact the dev for depth over 23!', depth)
     return
@@ -36,13 +33,19 @@ export function generateTreeWithData (depth = 0, dataType) {
     let startIndex = Math.pow(2, i)
     let parents = _.slice(tree.nodes, startIndex - 1, (2 * startIndex) - 1)
 
-    for (let j = 0; j < _.size(parents); j++) {
-      tree.pushNode(randomOfType(dataType), parents[j], 'left')
-      tree.pushNode(randomOfType(dataType), parents[j], 'right')
-    }
+    _.each(parents, function (parent) {
+      tree.pushNode(randomOfType(dataType), parent, 'left')
+      tree.pushNode(randomOfType(dataType), parent, 'right')
+    })
 
     tree.depth++
   }
+
+  _.each(includeDataArray, function (includedData) {
+    const rand = _.random(0, _.size(tree.nodes) - 1)
+
+    tree.nodes[rand].data = includedData
+  })
 
   return tree
 }
