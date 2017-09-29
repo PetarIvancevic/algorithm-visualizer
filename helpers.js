@@ -22,8 +22,8 @@ function CreateTree (data, depth) {
 }
 
 export function generateTreeWithData (depth = 0, dataType, includeDataArray = []) {
-  if (depth > 23) {
-    global.alert('Please contact the dev for depth over 23!', depth)
+  if (depth > 17) {
+    global.alert('Please contact the dev for depth over 17!', depth)
     errorOut('You went to far')
   }
 

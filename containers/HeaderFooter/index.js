@@ -5,17 +5,16 @@ export default class Home extends Component {
   render () {
     return (
       <div>
-        <header>
-          <h1>Algorithms</h1>
-          <nav>
-            <Link href='/algorithm/breadth-search'>Breadth search</Link>
-          </nav>
+        <header className='main-header'>
+          <h1><Link href='/'>Algorithms</Link></h1>
         </header>
 
         {this.props.children}
 
-        <footer>
-          <p>Footer...</p>
+        <footer className='main-footer'>
+          <p>
+            Petar Ivančević
+          </p>
         </footer>
       </div>
     )
