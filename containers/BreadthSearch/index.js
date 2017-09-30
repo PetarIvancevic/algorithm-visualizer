@@ -11,7 +11,8 @@ export default class BreadthSearch extends Component {
 
     this.updatePage = this.updatePage.bind(this)
     this.state = {
-      show: 'all'
+      show: 'all',
+      tree: generateTreeWithData(3, 'number', [5, 15, 25])
     }
   }
 
@@ -20,9 +21,7 @@ export default class BreadthSearch extends Component {
   }
 
   componentWillMount () {
-    const tree = generateTreeWithData(10, 'number', [5, 15, 25])
-
-    console.log(breadthSearch(tree.root, function (node) {
+    console.log(breadthSearch(this.state.tree.root, function (node) {
       return (node.data === 25)
     }))
   }
@@ -35,10 +34,10 @@ export default class BreadthSearch extends Component {
     }
 
     if (show === 'dynamic') {
-      return <Dynamic />
+      return <Dynamic tree={this.state.tree} />
     }
 
-    return [<Info />, <Dynamic />]
+    return [<Info />, <Dynamic tree={this.state.tree} />]
   }
 
   render () {
