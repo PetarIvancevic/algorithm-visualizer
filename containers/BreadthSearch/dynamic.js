@@ -4,8 +4,9 @@ import {Component, h} from 'preact' //eslint-disable-line
 import Canvas from 'components/Canvas'
 
 const drawingConstants = {
-  radius: 15,
-  minSpacing: 15
+  bottomMaxWidth: 0,
+  minSpacing: 15,
+  radius: 17
 }
 
 export default class Dynamic extends Component {
@@ -17,8 +18,8 @@ export default class Dynamic extends Component {
     this.getNodeSpacingAtDepth = this.getNodeSpacingAtDepth.bind(this)
   }
 
-  getNodeSpacingAtDepth (bottomMaxWidth, depth) {
-    const maxWidthAtDepth = bottomMaxWidth - (2 * drawingConstants.radius * this.getNodeCountAtDepth(depth))
+  getNodeSpacingAtDepth (depth, adjustedMaxWidth) {
+    const maxWidthAtDepth = adjustedMaxWidth - (2 * drawingConstants.radius * this.getNodeCountAtDepth(depth))
     const numSpaces = (this.getNodeCountAtDepth(depth) - 1)
 
     return maxWidthAtDepth / numSpaces
@@ -28,11 +29,12 @@ export default class Dynamic extends Component {
     return Math.pow(2, depth)
   }
 
-  getNodeXCoord (bottomMaxWidth, depth, currentNodeAtDepth, maxTreeDepth) {
-    const treeCenter = (bottomMaxWidth / 2) + 50
+  getNodeXCoord (depth, currentNodeAtDepth) {
+    const {tree} = this.props
+    const treeCenter = (drawingConstants.bottomMaxWidth / 2) + 50
     const depthHalfNumNodes = this.getNodeCountAtDepth(depth) / 2
-    const adjustedMaxWidth = bottomMaxWidth - (maxTreeDepth - depth) * Math.pow(2, maxTreeDepth - depth) * drawingConstants.radius
-    const spacing = this.getNodeSpacingAtDepth(adjustedMaxWidth, depth)
+    const adjustedMaxWidth = drawingConstants.bottomMaxWidth - (tree.depth - depth) * (Math.pow(2, tree.depth - depth) * drawingConstants.radius + drawingConstants.radius)
+    const spacing = this.getNodeSpacingAtDepth(depth, adjustedMaxWidth)
     let positionHelper = -1
 
     if (currentNodeAtDepth >= depthHalfNumNodes) {
@@ -45,7 +47,23 @@ export default class Dynamic extends Component {
     return treeCenter + (positionHelper * (spacingHelper + nodeHelper))
   }
 
-  drawNodesWithChilddrenArrows (ctx, centerCoords, data) {
+  drawChildArrow (ctx, centerCoords, childNode, depth, nodeIndexAtDepth) {
+    if (childNode) {
+      ctx.moveTo(centerCoords.x, centerCoords.y)
+      ctx.lineTo(
+        this.getNodeXCoord(depth, nodeIndexAtDepth),
+        centerCoords.y + 2 * drawingConstants.radius
+      )
+      ctx.stroke()
+    }
+  }
+
+  drawNodesWithChildrenArrows (ctx, centerCoords, depth, treeNode, nodeIndexAtDepth) {
+    ctx.beginPath()
+
+    this.drawChildArrow(ctx, centerCoords, treeNode.children[0], depth + 1, 2 * nodeIndexAtDepth)
+    this.drawChildArrow(ctx, centerCoords, treeNode.children[1], depth + 1, 2 * nodeIndexAtDepth + 1)
+
     ctx.beginPath()
     ctx.arc(centerCoords.x, centerCoords.y, drawingConstants.radius, 0, Math.PI * 2)
     ctx.fillStyle = '#fff'
@@ -53,35 +71,39 @@ export default class Dynamic extends Component {
     ctx.stroke()
 
     ctx.fillStyle = '#333'
-    ctx.fillText(data, centerCoords.x, centerCoords.y + 5)
+    ctx.fillText(treeNode.data, centerCoords.x, centerCoords.y + 5)
+
+    if (_.size(treeNode.children)) {
+
+    }
   }
 
   draw (ctx) {
     const {tree} = this.props
-    const bottomMaxWidth = 2 * drawingConstants.radius * this.getNodeCountAtDepth(tree.depth) + drawingConstants.minSpacing * (this.getNodeCountAtDepth(tree.depth) - 1)
+    drawingConstants.bottomMaxWidth = 2 * drawingConstants.radius * this.getNodeCountAtDepth(tree.depth) + drawingConstants.minSpacing * (this.getNodeCountAtDepth(tree.depth) - 1)
 
     ctx.font = '9pt Calibri'
     ctx.textAlign = 'center'
 
-    this.drawNodesWithChilddrenArrows(ctx, {
-      x: (bottomMaxWidth / 2) + 50,
+    this.drawNodesWithChildrenArrows(ctx, {
+      x: (drawingConstants.bottomMaxWidth / 2) + 50,
       y: drawingConstants.minSpacing * 2
-    }, tree.root.data)
+    }, 0, tree.root, 0)
 
     let currentDepth = 1
     let numPrintedNodes = 0
     const that = this
-    _.each(_.slice(tree.nodes, 1), function (treeNode, index) {
+    _.each(_.slice(tree.nodes, 1), function (treeNode) {
       if (numPrintedNodes > Math.pow(2, currentDepth) - 1) {
         numPrintedNodes = 0
         currentDepth++
       }
 
-      that.drawNodesWithChilddrenArrows(
+      that.drawNodesWithChildrenArrows(
         ctx, {
-          x: that.getNodeXCoord(bottomMaxWidth, currentDepth, numPrintedNodes, tree.depth),
+          x: that.getNodeXCoord(currentDepth, numPrintedNodes),
           y: (currentDepth * drawingConstants.radius * 2) + (drawingConstants.minSpacing * (currentDepth + 1) + 15)
-        }, treeNode.data)
+        }, currentDepth, treeNode, numPrintedNodes)
 
       numPrintedNodes++
     })

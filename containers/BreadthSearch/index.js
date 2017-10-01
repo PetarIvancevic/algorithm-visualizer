@@ -41,8 +41,6 @@ export default class BreadthSearch extends Component {
   }
 
   render () {
-    console.log(this.state)
-
     return (
       <article className='top-holder'>
         <header>
