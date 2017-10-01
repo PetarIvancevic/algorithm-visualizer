@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import {Component, h} from 'preact' //eslint-disable-line
 
 import Dynamic from './dynamic'
@@ -10,34 +11,55 @@ export default class BreadthSearch extends Component {
     super(props)
 
     this.updatePage = this.updatePage.bind(this)
+    this.updateState = this.updateState.bind(this)
+    this.generateTree = this.generateTree.bind(this)
     this.state = {
+      searchValue: 5,
       show: 'all',
-      tree: generateTreeWithData(3, 'number', [5, 15, 25])
+      tree: generateTreeWithData(1, 'number', [5]),
+      treeDepth: 1
     }
+  }
+
+  componentWillMount () {
+    const {searchValue} = this.state
+    console.log(breadthSearch(this.state.tree.root, function (node) {
+      return (node.data === searchValue)
+    }))
+  }
+
+  generateTree () {
+    const {treeDepth, searchValue} = this.state
+    const tree = generateTreeWithData(treeDepth, 'number', [searchValue])
+
+    this.setState({tree})
+  }
+
+  updateState (type, val) {
+    this.setState({[type]: _.toInteger(val)})
   }
 
   updatePage (show) {
     this.setState({show})
   }
 
-  componentWillMount () {
-    console.log(breadthSearch(this.state.tree.root, function (node) {
-      return (node.data === 25)
-    }))
-  }
-
   showSections () {
     const {show} = this.state
+    const dynamicAttributes = {
+      generateTree: this.generateTree,
+      updateState: this.updateState,
+      tree: this.state.tree
+    }
 
     if (show === 'info') {
       return <Info />
     }
 
     if (show === 'dynamic') {
-      return <Dynamic tree={this.state.tree} />
+      return <Dynamic {...dynamicAttributes} />
     }
 
-    return [<Info />, <Dynamic tree={this.state.tree} />]
+    return [<Info />, <Dynamic {...dynamicAttributes} />]
   }
 
   render () {

@@ -72,10 +72,6 @@ export default class Dynamic extends Component {
 
     ctx.fillStyle = '#333'
     ctx.fillText(treeNode.data, centerCoords.x, centerCoords.y + 5)
-
-    if (_.size(treeNode.children)) {
-
-    }
   }
 
   draw (ctx) {
@@ -114,16 +110,16 @@ export default class Dynamic extends Component {
       <section>
         <div>
           <span>Tree depth: </span>
-          <input type='number' />
+          <input type='number' placeholder={1} onChange={e => this.props.updateState('treeDepth', e.target.value)} />
         </div>
         <div>
           <span>Search value: </span>
-          <input type='number' />
+          <input type='number' placeholder={5} onChange={e => this.props.updateState('searchValue', e.target.value)} />
         </div>
         <div>
-          <button>Search</button>
+          <button onClick={this.props.generateTree}>Render</button>
         </div>
-        <Canvas draw={this.draw} attributes={{height: '500', width: '800'}} />
+        <Canvas draw={this.draw} attributes={{height: this.props.tree.depth * 50 + 50, width: 800}} />
       </section>
     )
   }

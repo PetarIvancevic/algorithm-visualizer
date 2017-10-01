@@ -8,6 +8,16 @@ class Canvas extends Component {
     this.initCanvasCtx = this.initCanvasCtx.bind(this)
   }
 
+  componentDidUpdate (prevProps) {
+    if (prevProps.attributes.height !== this.props.attributes.height) {
+      this.props.draw(this.canvasCtx)
+    }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    this.props.draw(this.canvasCtx)
+  }
+
   componentDidMount () {
     this.props.draw(this.canvasCtx)
   }
