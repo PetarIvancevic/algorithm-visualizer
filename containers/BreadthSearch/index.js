@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import {Component, h} from 'preact' //eslint-disable-line
 
-import Dynamic from './dynamic'
+import DrawComponent from './drawComponent'
 import Info from './info'
 import {breadthSearch} from 'algorithms'
 import {generateTreeWithData} from 'helpers'
@@ -45,7 +45,7 @@ export default class BreadthSearch extends Component {
 
   showSections () {
     const {show} = this.state
-    const dynamicAttributes = {
+    const drawComponentAttributes = {
       generateTree: this.generateTree,
       updateState: this.updateState,
       tree: this.state.tree
@@ -56,10 +56,10 @@ export default class BreadthSearch extends Component {
     }
 
     if (show === 'dynamic') {
-      return <Dynamic {...dynamicAttributes} />
+      return <DrawComponent {...drawComponentAttributes} />
     }
 
-    return [<Info />, <Dynamic {...dynamicAttributes} />]
+    return [<Info />, <DrawComponent {...drawComponentAttributes} />]
   }
 
   render () {
@@ -70,7 +70,7 @@ export default class BreadthSearch extends Component {
           <ul>
             <li onClick={() => this.updatePage('all')}>All</li>
             <li onClick={() => this.updatePage('info')}>Info</li>
-            <li onClick={() => this.updatePage('dynamic')}>Dynamic</li>
+            <li onClick={() => this.updatePage('dynamic')}>Visual</li>
           </ul>
         </header>
         {this.showSections()}

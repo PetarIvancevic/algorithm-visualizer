@@ -2,27 +2,23 @@ import _ from 'lodash'
 import {Component, h} from 'preact' //eslint-disable-line
 
 import Canvas from 'components/Canvas'
+import {canvasNodeProperties} from 'constants'
 
 const drawingConstants = {
   bottomMaxWidth: 0,
+  connectionLineWidth: 5,
+  fontSize: 9,
+  leftOffset: 50,
   minSpacing: 15,
-  radius: 17
+  radius: 25
 }
 
-export default class Dynamic extends Component {
+export default class DrawComponent extends Component {
   constructor () {
     super()
 
     this.draw = this.draw.bind(this)
     this.getNodeXCoord = this.getNodeXCoord.bind(this)
-    this.getNodeSpacingAtDepth = this.getNodeSpacingAtDepth.bind(this)
-  }
-
-  getNodeSpacingAtDepth (depth, adjustedMaxWidth) {
-    const maxWidthAtDepth = adjustedMaxWidth - (2 * drawingConstants.radius * this.getNodeCountAtDepth(depth))
-    const numSpaces = (this.getNodeCountAtDepth(depth) - 1)
-
-    return maxWidthAtDepth / numSpaces
   }
 
   getNodeCountAtDepth (depth) {
@@ -31,20 +27,15 @@ export default class Dynamic extends Component {
 
   getNodeXCoord (depth, currentNodeAtDepth) {
     const {tree} = this.props
-    const treeCenter = (drawingConstants.bottomMaxWidth / 2) + 50
-    const depthHalfNumNodes = this.getNodeCountAtDepth(depth) / 2
-    const adjustedMaxWidth = drawingConstants.bottomMaxWidth - (tree.depth - depth) * (Math.pow(2, tree.depth - depth) * drawingConstants.radius + drawingConstants.radius)
-    const spacing = this.getNodeSpacingAtDepth(depth, adjustedMaxWidth)
-    let positionHelper = -1
+    let widthHelper = drawingConstants.bottomMaxWidth / this.getNodeCountAtDepth(depth + 1)
 
-    if (currentNodeAtDepth >= depthHalfNumNodes) {
-      positionHelper = 1
+    if (depth === 0) {
+      return drawingConstants.leftOffset + widthHelper
+    } else if (depth !== tree.depth) {
+      return drawingConstants.leftOffset + widthHelper + 2 * currentNodeAtDepth * widthHelper
+    } else {
+      return drawingConstants.leftOffset + ((currentNodeAtDepth + 1) * 2 * drawingConstants.radius) + (currentNodeAtDepth * drawingConstants.minSpacing) - drawingConstants.radius
     }
-
-    const spacingHelper = Math.abs((spacing * depthHalfNumNodes) - (spacing * currentNodeAtDepth) - (spacing / 2))
-    const nodeHelper = Math.abs((2 * drawingConstants.radius * depthHalfNumNodes) - (2 * drawingConstants.radius * currentNodeAtDepth) - drawingConstants.radius)
-
-    return treeCenter + (positionHelper * (spacingHelper + nodeHelper))
   }
 
   drawChildArrow (ctx, centerCoords, childNode, depth, nodeIndexAtDepth) {
@@ -60,17 +51,18 @@ export default class Dynamic extends Component {
 
   drawNodesWithChildrenArrows (ctx, centerCoords, depth, treeNode, nodeIndexAtDepth) {
     ctx.beginPath()
-
+    ctx.strokeStyle = canvasNodeProperties.connectionLineColor
+    ctx.lineWidth = drawingConstants.connectionLineWidth
     this.drawChildArrow(ctx, centerCoords, treeNode.children[0], depth + 1, 2 * nodeIndexAtDepth)
     this.drawChildArrow(ctx, centerCoords, treeNode.children[1], depth + 1, 2 * nodeIndexAtDepth + 1)
 
     ctx.beginPath()
     ctx.arc(centerCoords.x, centerCoords.y, drawingConstants.radius, 0, Math.PI * 2)
-    ctx.fillStyle = '#fff'
+    ctx.fillStyle = canvasNodeProperties.bgColor
     ctx.fill()
     ctx.stroke()
 
-    ctx.fillStyle = '#333'
+    ctx.fillStyle = canvasNodeProperties.textColor
     ctx.fillText(treeNode.data, centerCoords.x, centerCoords.y + 5)
   }
 
@@ -78,11 +70,11 @@ export default class Dynamic extends Component {
     const {tree} = this.props
     drawingConstants.bottomMaxWidth = 2 * drawingConstants.radius * this.getNodeCountAtDepth(tree.depth) + drawingConstants.minSpacing * (this.getNodeCountAtDepth(tree.depth) - 1)
 
-    ctx.font = '9pt Calibri'
+    ctx.font = `${drawingConstants.fontSize}pt Calibri`
     ctx.textAlign = 'center'
 
     this.drawNodesWithChildrenArrows(ctx, {
-      x: (drawingConstants.bottomMaxWidth / 2) + 50,
+      x: this.getNodeXCoord(0, 0),
       y: drawingConstants.minSpacing * 2
     }, 0, tree.root, 0)
 
@@ -95,8 +87,7 @@ export default class Dynamic extends Component {
         currentDepth++
       }
 
-      that.drawNodesWithChildrenArrows(
-        ctx, {
+      that.drawNodesWithChildrenArrows(ctx, {
           x: that.getNodeXCoord(currentDepth, numPrintedNodes),
           y: (currentDepth * drawingConstants.radius * 2) + (drawingConstants.minSpacing * (currentDepth + 1) + 15)
         }, currentDepth, treeNode, numPrintedNodes)
@@ -119,7 +110,7 @@ export default class Dynamic extends Component {
         <div>
           <button onClick={this.props.generateTree}>Render</button>
         </div>
-        <Canvas draw={this.draw} attributes={{height: this.props.tree.depth * 50 + 50, width: 800}} />
+        <Canvas draw={this.draw} attributes={{height: this.props.tree.depth * 70 + 60, width: 900}} />
       </section>
     )
   }
