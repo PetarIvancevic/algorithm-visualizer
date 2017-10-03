@@ -88,9 +88,9 @@ export default class DrawComponent extends Component {
       }
 
       that.drawNodesWithChildrenArrows(ctx, {
-          x: that.getNodeXCoord(currentDepth, numPrintedNodes),
-          y: (currentDepth * drawingConstants.radius * 2) + (drawingConstants.minSpacing * (currentDepth + 1) + 15)
-        }, currentDepth, treeNode, numPrintedNodes)
+        x: that.getNodeXCoord(currentDepth, numPrintedNodes),
+        y: (currentDepth * drawingConstants.radius * 2) + (drawingConstants.minSpacing * (currentDepth + 1) + 15)
+      }, currentDepth, treeNode, numPrintedNodes)
 
       numPrintedNodes++
     })
