@@ -67,11 +67,13 @@ export default class BreadthSearch extends Component {
       <article className='top-holder'>
         <header>
           <h1>Breadth Search</h1>
-          <ul>
-            <li onClick={() => this.updatePage('all')}>All</li>
-            <li onClick={() => this.updatePage('info')}>Info</li>
-            <li onClick={() => this.updatePage('dynamic')}>Visual</li>
-          </ul>
+          <nav>
+            <ul>
+              <li onClick={() => this.updatePage('all')}>All</li>
+              <li onClick={() => this.updatePage('info')}>Info</li>
+              <li onClick={() => this.updatePage('dynamic')}>Visual</li>
+            </ul>
+          </nav>
         </header>
         {this.showSections()}
       </article>
