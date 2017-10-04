@@ -6,7 +6,7 @@ export default class Home extends Component {
     return (
       <div>
         <nav>
-          <Link href='/algorithm/breadth-search'>Breadth search</Link>
+          <Link href='/algorithm/breadth-first-search'>Breadth first search</Link>
         </nav>
       </div>
     )

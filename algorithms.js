@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-export function breadthSearch (initialNode, solutionFn) {
+export function breadthFirstSearch (initialNode, solutionFn) {
   let explored = []
   let frontier = [initialNode]
 

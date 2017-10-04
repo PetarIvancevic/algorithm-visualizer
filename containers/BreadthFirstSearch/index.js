@@ -3,7 +3,7 @@ import {Component, h} from 'preact' //eslint-disable-line
 
 import DrawComponent from './drawComponent'
 import Info from './info'
-import {breadthSearch} from 'algorithms'
+import {breadthFirstSearch} from 'algorithms'
 import {generateTreeWithData} from 'helpers'
 
 export default class BreadthSearch extends Component {
@@ -23,7 +23,7 @@ export default class BreadthSearch extends Component {
 
   componentWillMount () {
     const {searchValue} = this.state
-    console.log(breadthSearch(this.state.tree.root, function (node) {
+    console.log(breadthFirstSearch(this.state.tree.root, function (node) {
       return (node.data === searchValue)
     }))
   }
