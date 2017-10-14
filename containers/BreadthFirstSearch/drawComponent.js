@@ -99,6 +99,9 @@ export default class DrawComponent extends Component {
   render () {
     return (
       <section>
+        <header>
+          <h2 id='tree'>Tree</h2>
+        </header>
         <div>
           <span>Tree depth: </span>
           <input type='number' placeholder={1} onChange={e => this.props.updateState('treeDepth', e.target.value)} />

@@ -43,39 +43,27 @@ export default class BreadthSearch extends Component {
     this.setState({show})
   }
 
-  showSections () {
-    const {show} = this.state
+  render () {
     const drawComponentAttributes = {
       generateTree: this.generateTree,
       updateState: this.updateState,
       tree: this.state.tree
     }
 
-    if (show === 'info') {
-      return <Info />
-    }
-
-    if (show === 'dynamic') {
-      return <DrawComponent {...drawComponentAttributes} />
-    }
-
-    return [<Info />, <DrawComponent {...drawComponentAttributes} />]
-  }
-
-  render () {
     return (
       <article className='top-holder'>
         <header>
           <h1>Breadth Search</h1>
-          <nav>
-            <ul>
-              <li onClick={() => this.updatePage('all')}>All</li>
-              <li onClick={() => this.updatePage('info')}>Info</li>
-              <li onClick={() => this.updatePage('dynamic')}>Visual</li>
-            </ul>
-          </nav>
+          <section>
+            <span>Content</span>
+            <ol className='content-list'>
+              <li><a href='#info'>Info</a></li>
+              <li><a href='#tree'>Tree</a></li>
+            </ol>
+          </section>
         </header>
-        {this.showSections()}
+        <Info />
+        <DrawComponent {...drawComponentAttributes} />
       </article>
     )
   }

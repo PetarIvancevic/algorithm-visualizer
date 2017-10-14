@@ -4,6 +4,9 @@ export default function Info () {
   return (
     <div>
       <section>
+        <header>
+          <h2 id='#info'>Info</h2>
+        </header>
         <p>
           <b>Breadth first search (BFS)</b> is an algorithm used for searching <b>graph</b> or <b>tree</b> structured data.
           In this example a <i>tree</i> structure is being used, because it is easier to show how the algorithm works. Some terminology used:
@@ -19,7 +22,7 @@ export default function Info () {
         </p>
 
         <p>
-          The algorithm code used in this example is shown below.
+          The algorithm code implemented with javascript is shown below. <a target='_blank' href='https://lodash.com'>Lodash</a> is being used for certain tedious operations.
         </p>
       </section>
       <aside>
@@ -49,7 +52,7 @@ export default function Info () {
           The <i>breadthFirstSearch</i> function accepts two arguments.
           <ul>
             <li><b>initialNode</b> - the node where the search starts (in this example it will be the root node)</li>
-            <li><b>solutionFn</b> - a solution function used to test if the searched node is found. This can be any function and in this example we are just checking if the node data is a specific number</li>
+            <li><b>solutionFn</b> - a solution function used to test if the searched node is found. This can be any function and in this example it is just checking if the node data is a specific number</li>
           </ul>
         </p>
       </section>
