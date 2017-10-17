@@ -99,19 +99,18 @@ export default class DrawComponent extends Component {
   render () {
     return (
       <section>
-        <header>
-          <h2 id='tree'>Tree</h2>
-        </header>
-        <div>
-          <span>Tree depth: </span>
-          <input type='number' placeholder={1} onChange={e => this.props.updateState('treeDepth', e.target.value)} />
-        </div>
-        <div>
-          <span>Search value: </span>
-          <input type='number' placeholder={5} onChange={e => this.props.updateState('searchValue', e.target.value)} />
-        </div>
-        <div>
-          <button onClick={this.props.generateTree}>Render</button>
+        <div className='canvas-tree-controls'>
+          <label>
+            <span>Tree depth:</span>
+            <input type='number' placeholder={1} onChange={e => this.props.updateState('treeDepth', e.target.value)} min={0} max={17} />
+          </label>
+          <label>
+            <span>Search value: </span>
+            <input type='number' placeholder={5} onChange={e => this.props.updateState('searchValue', e.target.value)} />
+          </label>
+          <div>
+            <button onClick={this.props.generateTree}>Render</button>
+          </div>
         </div>
         <Canvas draw={this.draw} attributes={{height: this.props.tree.depth * 70 + 60, width: 900}} />
       </section>

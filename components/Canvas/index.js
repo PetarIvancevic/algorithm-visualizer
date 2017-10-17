@@ -19,6 +19,7 @@ class Canvas extends Component {
   }
 
   componentDidMount () {
+    this.canvasCtx.translate(0.5, 0.5)
     this.props.draw(this.canvasCtx)
   }
 
