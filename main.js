@@ -4,6 +4,7 @@ import Router from 'preact-router'
 import BreadthFirstSearch from 'containers/BreadthFirstSearch'
 import HeaderFooter from 'containers/HeaderFooter'
 import Home from 'containers/Home'
+import Tetris from 'containers/Tetris'
 import NotFound from 'containers/NotFound'
 
 const App = () => (
@@ -11,6 +12,7 @@ const App = () => (
     <Router>
       <Home path='/' />
       <BreadthFirstSearch path='algorithm/breadth-first-search' />
+      <Tetris path='game/tetris' />
       <NotFound default />
     </Router>
   </HeaderFooter>

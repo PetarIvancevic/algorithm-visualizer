@@ -30,8 +30,8 @@ class Canvas extends Component {
 
   render () {
     return (
-      <section>
-        <canvas ref={this.initCanvasCtx} {...this.props.attributes}>
+      <section className='canvas-holder'>
+        <canvas className={this.props.customClass} ref={this.initCanvasCtx} {...this.props.attributes}>
           Your browser does not support the canvas element
         </canvas>
       </section>
@@ -40,6 +40,7 @@ class Canvas extends Component {
 }
 
 Canvas.propTypes = {
+  className: PropTypes.func,
   draw: PropTypes.func.isRequired
 }
 
