@@ -7,7 +7,7 @@ import {canvasNodeProperties} from 'constants'
 const drawingConstants = {
   bottomMaxWidth: 0,
   connectionLineWidth: 5,
-  fontSize: 9,
+  fontSize: 12,
   leftOffset: 50,
   minSpacing: 15,
   radius: 25
@@ -99,6 +99,9 @@ export default class DrawComponent extends Component {
   render () {
     return (
       <section>
+        <header>
+          <h2 id='tree'>Tree</h2>
+        </header>
         <div className='canvas-tree-controls'>
           <label>
             <span>Tree depth:</span>
