@@ -103,6 +103,8 @@ const game = function (redrawFunction) {
         pushDownFromHeight(i)
       }
     }
+
+    score += numberOfFullRows
   }
 
   const fixateBlockAndGetNew = function (type, occupiedPositions) {

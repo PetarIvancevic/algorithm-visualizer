@@ -13,13 +13,14 @@ const tetrisCanvasAttributes = {
 }
 
 export default class DrawComponent extends Component {
-  constructor () {
-    super()
+  constructor (props) {
+    super(props)
 
     this.draw = this.draw.bind(this)
     this.drawGameElements = this.drawGameElements.bind(this)
     this.drawGrid = this.drawGrid.bind(this)
     this.reDraw = this.reDraw.bind(this)
+    this.state = {score: 0}
   }
 
   componentDidMount () {
@@ -59,6 +60,8 @@ export default class DrawComponent extends Component {
       this.ctx.fillStyle = games.tetris.blockTypeColors[currentBlock.type]
       this.ctx.fill()
     }
+
+    this.setState({score: this.game.getScore()})
   }
 
   reDraw () {
@@ -93,12 +96,19 @@ export default class DrawComponent extends Component {
   }
 
   render () {
+    const {score} = this.state
+
     return (
-      <Canvas
-        customClass='tetris-canvas'
-        draw={this.draw}
-        attributes={tetrisCanvasAttributes}
-      />
+      <section>
+        <p>
+          Score: <b>{score}</b>
+        </p>,
+        <Canvas
+          customClass='tetris-canvas'
+          draw={this.draw}
+          attributes={tetrisCanvasAttributes}
+        />
+      </section>
     )
   }
 }
