@@ -74,6 +74,37 @@ const game = function (redrawFunction) {
     nextBlockType = getRandomBlockType()
   }
 
+  const pushDownFromHeight = function (height) {
+    for (let i = 0; i < 10; i++) {
+      for (let j = height; j >= 0; j--) {
+        if (j === 0) {
+          delete gameBoard[i][j]
+        } else {
+          gameBoard[i][j] = gameBoard[i][j - 1]
+        }
+      }
+    }
+  }
+
+  const checkForFullRows = function () {
+    let numberOfFullRows = 0
+
+    for (let i = 19; i >= 0; i--) {
+      let isRowFull = true
+
+      for (let j = 0; j < 10; j++) {
+        if (!gameBoard[j][i]) {
+          isRowFull = false
+        }
+      }
+
+      if (isRowFull) {
+        numberOfFullRows++
+        pushDownFromHeight(i)
+      }
+    }
+  }
+
   const fixateBlockAndGetNew = function (type, occupiedPositions) {
     for (let i = 0; i < _.size(occupiedPositions); i++) {
       let {x, y} = occupiedPositions[i]
@@ -82,6 +113,7 @@ const game = function (redrawFunction) {
     }
 
     setupNextBlock()
+    checkForFullRows()
     createBlock()
 
     for (let i = 0; i < _.size(currentBlock.occupiedPositions); i++) {
