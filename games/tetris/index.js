@@ -33,7 +33,8 @@ const game = function (redrawFunction) {
   }
 
   const advanceCurrentBlock = function () {
-    if (frame % 13 === 0) {
+    // this can be used for difficulty
+    if (frame % 5 === 0) {
       currentBlock.advance(checkCollision)
     }
     frame++

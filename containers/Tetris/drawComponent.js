@@ -25,7 +25,7 @@ export default class DrawComponent extends Component {
 
   componentDidMount () {
     this.game = new TetrisGame(this.reDraw)
-    setInterval(this.reDraw, 70)
+    setInterval(this.reDraw, 60)
   }
 
   drawGameElements () {
@@ -72,7 +72,7 @@ export default class DrawComponent extends Component {
 
   drawGrid () {
     this.ctx.lineWidth = 0.2
-    this.ctx.strokeStyle = '#ECECED'
+    this.ctx.strokeStyle = '#fff'
 
     for (let i = 0; i <= 20; i++) {
       let currentHeight = tetrisCanvasAttributes.heightOffset * i
