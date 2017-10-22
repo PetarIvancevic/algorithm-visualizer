@@ -24,13 +24,13 @@ export const games = {
       ZBlock: 'ZBlock'
     },
     blockTypeColors: {
-      IBlock: '#333',
-      JBlock: '#333',
-      LBlock: '#333',
-      OBlock: '#333',
-      SBlock: '#333',
-      TBlock: '#333',
-      ZBlock: '#333'
+      IBlock: '#C7E437',
+      JBlock: '#5DE14D',
+      LBlock: '#3D8ABA',
+      OBlock: '#934FAD',
+      SBlock: '#B03013',
+      TBlock: '#EF7BB9',
+      ZBlock: '#FC6601'
     }
   }
 }

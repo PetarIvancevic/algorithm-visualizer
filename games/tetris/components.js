@@ -27,11 +27,11 @@ const baseBlock = function (nextBlockFn, isRotationPossibleFn) {
   }
 
   this.move = function (direction) {
-    let newPositions = []
-    let movement = (direction === 'left') ? -1 : 1
+    const newPositions = []
+    const movement = (direction === 'left') ? -1 : 1
 
     for (let i = 0; i < _.size(this.occupiedPositions); i++) {
-      let {x, y} = this.occupiedPositions[i]
+      const {x, y} = this.occupiedPositions[i]
 
       newPositions[i] = {x, y}
 
@@ -97,6 +97,7 @@ const IBlock = function (nextBlockFn, isRotationPossibleFn) {
 const JBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
+  this.type = games.tetris.blockTypes.JBlock
   this.occupiedPositions = [{}]
 }
 
@@ -104,6 +105,7 @@ const JBlock = function (nextBlockFn, isRotationPossibleFn) {
 const LBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
+  this.type = games.tetris.blockTypes.LBlock
   this.occupiedPositions = [{}]
 }
 
@@ -129,6 +131,7 @@ const OBlock = function (nextBlockFn, isRotationPossibleFn) {
 const SBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
+  this.type = games.tetris.blockTypes.SBlock
   this.occupiedPositions = [{}]
 }
 
@@ -136,14 +139,102 @@ const SBlock = function (nextBlockFn, isRotationPossibleFn) {
 const TBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
-  this.occupiedPositions = [{}]
+  this.type = games.tetris.blockTypes.TBlock
+  const possibleRotations = 4
+  let currentRotation = _.random(1, possibleRotations)
+  let tempRotation = currentRotation
+  this.occupiedPositions = []
+
+  this.populateRotationPositions = function () {
+    const {x, y} = this.occupiedPositions[0] || {x: 4, y: 1}
+    let newPositions = [{x, y}]
+
+    switch (tempRotation) {
+      case 1:
+        newPositions[1] = {x: x - 1, y}
+        newPositions[2] = {x, y: y - 1}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 2:
+        newPositions[1] = {x, y: y - 1}
+        newPositions[2] = {x: x + 1, y}
+        newPositions[3] = {x, y: y + 1}
+        break
+      case 3:
+        newPositions[1] = {x: x - 1, y}
+        newPositions[2] = {x, y: y + 1}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 4:
+        newPositions[1] = {x, y: y - 1}
+        newPositions[2] = {x: x - 1, y}
+        newPositions[3] = {x, y: y + 1}
+        break
+    }
+
+    if (isRotationPossibleFn(newPositions)) {
+      this.occupiedPositions = newPositions
+      currentRotation = tempRotation
+    }
+  }
+
+  this.changeRotation = function () {
+    tempRotation = (tempRotation % 4) + 1
+    this.populateRotationPositions()
+  }
+
+  this.populateRotationPositions()
 }
 
 // Z-block
 const ZBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
-  this.occupiedPositions = [{}]
+  this.type = games.tetris.blockTypes.ZBlock
+  const possibleRotations = 4
+  let currentRotation = _.random(1, possibleRotations)
+  let tempRotation = currentRotation
+  this.occupiedPositions = []
+
+  this.populateRotationPositions = function () {
+    const {x, y} = this.occupiedPositions[0] || {x: 4, y: 1}
+    let newPositions = [{x, y}]
+
+    switch (tempRotation) {
+      case 1:
+        newPositions[1] = {x: x - 1, y: y - 1}
+        newPositions[2] = {x, y: y - 1}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 2:
+        newPositions[1] = {x: x + 1, y: y - 1}
+        newPositions[2] = {x: x + 1, y}
+        newPositions[3] = {x, y: y + 1}
+        break
+      case 3:
+        newPositions[1] = {x: x - 1, y: y - 1}
+        newPositions[2] = {x, y: y - 1}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 4:
+        newPositions[1] = {x, y: y - 1}
+        newPositions[2] = {x: x - 1, y}
+        newPositions[3] = {x: x - 1, y: y + 1}
+        break
+    }
+
+    if (isRotationPossibleFn(newPositions)) {
+      this.occupiedPositions = newPositions
+      currentRotation = tempRotation
+    }
+  }
+
+  this.changeRotation = function () {
+    tempRotation = (tempRotation % 4) + 1
+    this.populateRotationPositions()
+  }
+
+  this.populateRotationPositions()
 }
 
 export default {
