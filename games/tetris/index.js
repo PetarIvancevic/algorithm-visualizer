@@ -4,20 +4,21 @@ import {games} from 'constants'
 
 const game = function (redrawFunction) {
   const gameBoard = new Array(10)
+  let gameOver = false
   let score = 0
+  let frame = 1
   let currentBlock, currentBlockType, nextBlockType
 
   const possibleBlockTypes = _.keys(games.tetris.blockTypes)
 
-  this.getBoard = function () {
-    const cloneBoard = new Array(10)
-
-    for (let i = 0; i < 10; i++) {
-      cloneBoard[i] = gameBoard[i].slice()
+  this.advanceGame = function () {
+    if (gameOver) {
+      return
     }
-
-    return cloneBoard
+    advanceCurrentBlock()
   }
+
+  this.getBoard = function () { return gameBoard }
 
   this.getScore = function () { return score }
 
@@ -31,7 +32,36 @@ const game = function (redrawFunction) {
     }
   }
 
+  const advanceCurrentBlock = function () {
+    if (frame % 13 === 0) {
+      currentBlock.advance(checkCollision)
+    }
+    frame++
+  }
+
+  const checkCollision = function (x, y) {
+    return !!gameBoard[x][y]
+  }
+
+  const isRotationPossible = function (positions) {
+    for (let i = 0; i < _.size(positions); i++) {
+      let {x, y} = positions[i]
+
+      if (positions[i].x < 0 || positions[i].x > 9 || positions[i].y < 0 || positions[i].y > 19) {
+        return false
+      }
+
+      if (gameBoard[x][y]) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   const endGame = function () {
+    gameOver = true
+    document.body.removeEventListener('keypress', registerEventListeners)
     console.log('endGame')
   }
 
@@ -44,23 +74,41 @@ const game = function (redrawFunction) {
     nextBlockType = getRandomBlockType()
   }
 
-  const createBlockInBoard = function () {
-    currentBlock = _.assign({}, gameBlocks[currentBlockType])
+  const fixateBlockAndGetNew = function (type, occupiedPositions) {
+    for (let i = 0; i < _.size(occupiedPositions); i++) {
+      let {x, y} = occupiedPositions[i]
+
+      gameBoard[x][y] = {type}
+    }
+
+    setupNextBlock()
+    createBlock()
 
     for (let i = 0; i < _.size(currentBlock.occupiedPositions); i++) {
       let {x, y} = currentBlock.occupiedPositions[i]
-      if (gameBoard[x][y]) {
+
+      if (checkCollision(x, y)) {
         return endGame()
       }
-
-      gameBoard[x][y] = {type: currentBlock.type}
     }
   }
 
-  const startFlow = function () {
-    createBlockInBoard()
+  const createBlock = function () {
+    currentBlock = new gameBlocks[currentBlockType](fixateBlockAndGetNew, isRotationPossible)
+  }
 
-    redrawFunction()
+  const registerEventListeners = function (event) {
+    const key = event.key
+
+    if (key === 'x') {
+      currentBlock.changeRotation()
+    } else if (key === 'a') {
+      currentBlock.move('left')
+    } else if (key === 'd') {
+      currentBlock.move('right')
+    } else if (key === 's') {
+      currentBlock.move('down')
+    }
   }
 
   const init = function () {
@@ -68,7 +116,9 @@ const game = function (redrawFunction) {
     createGameBoard()
     nextBlockType = getRandomBlockType()
     setupNextBlock()
-    setTimeout(startFlow, 1000)
+    createBlock()
+
+    document.body.addEventListener('keypress', registerEventListeners)
   }
 
   init()

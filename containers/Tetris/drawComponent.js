@@ -1,4 +1,4 @@
-// import _ from 'lodash'
+import _ from 'lodash'
 import {Component, h} from 'preact' //eslint-disable-line
 
 import Canvas from 'components/Canvas'
@@ -24,10 +24,13 @@ export default class DrawComponent extends Component {
 
   componentDidMount () {
     this.game = new TetrisGame(this.reDraw)
+    setInterval(this.reDraw, 70)
   }
 
   drawGameElements () {
+    this.game.advanceGame()
     const gameBoard = this.game.getBoard()
+    const currentBlock = this.game.getCurrentBlock()
 
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 20; j++) {
@@ -43,6 +46,17 @@ export default class DrawComponent extends Component {
         }
       }
     }
+
+    for (let i = 0; i < _.size(currentBlock.occupiedPositions); i++) {
+      this.ctx.rect(
+        tetrisCanvasAttributes.widthOffset * currentBlock.occupiedPositions[i].x,
+        tetrisCanvasAttributes.heightOffset * currentBlock.occupiedPositions[i].y,
+        tetrisCanvasAttributes.widthOffset,
+        tetrisCanvasAttributes.heightOffset
+      )
+      this.ctx.fillStyle = games.tetris.blockTypeColors[currentBlock.type]
+      this.ctx.fill()
+    }
   }
 
   reDraw () {
@@ -57,7 +71,7 @@ export default class DrawComponent extends Component {
 
     for (let i = 0; i <= 20; i++) {
       let currentHeight = tetrisCanvasAttributes.heightOffset * i
-
+      this.ctx.beginPath()
       this.ctx.moveTo(0, currentHeight)
       this.ctx.lineTo(tetrisCanvasAttributes.width, currentHeight)
       this.ctx.stroke()
@@ -65,7 +79,7 @@ export default class DrawComponent extends Component {
 
     for (let i = 0; i <= 10; i++) {
       let currentWidth = tetrisCanvasAttributes.widthOffset * i
-
+      this.ctx.beginPath()
       this.ctx.moveTo(currentWidth, 0)
       this.ctx.lineTo(currentWidth, tetrisCanvasAttributes.height)
       this.ctx.stroke()
@@ -74,7 +88,6 @@ export default class DrawComponent extends Component {
 
   draw (ctx) {
     this.ctx = ctx
-    this.drawGrid()
   }
 
   render () {
