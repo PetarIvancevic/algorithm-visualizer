@@ -6,6 +6,7 @@ import TetrisGame from 'games/tetris/index'
 import {games} from 'constants'
 
 const tetrisCanvasAttributes = {
+  backgroundColor: '#363636',
   height: 600,
   width: 400,
   heightOffset: 600 / 20,
@@ -20,12 +21,39 @@ export default class DrawComponent extends Component {
     this.drawGameElements = this.drawGameElements.bind(this)
     this.drawGrid = this.drawGrid.bind(this)
     this.reDraw = this.reDraw.bind(this)
+    this.startNewGame = this.startNewGame.bind(this)
     this.state = {score: 0}
   }
 
   componentDidMount () {
     this.game = new TetrisGame(this.reDraw)
-    setInterval(this.reDraw, 60)
+  }
+
+  startNewGame (difficulty) {
+    let frameRate = 10
+
+    switch (difficulty) {
+      case 'easy':
+        frameRate = 10
+        break
+      case 'medium':
+        frameRate = 5
+        break
+      case 'hard':
+        frameRate = 2
+        break
+    }
+
+    if (this.reDrawInterval) {
+      clearInterval(this.reDrawInterval)
+    }
+
+    this.game = new TetrisGame(frameRate)
+    this.reDrawInterval = setInterval(this.reDraw, 60)
+  }
+
+  changeTetrisBg (color) {
+    tetrisCanvasAttributes.backgroundColor = color
   }
 
   drawGameElements () {
@@ -66,13 +94,15 @@ export default class DrawComponent extends Component {
 
   reDraw () {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
+    this.ctx.fillStyle = tetrisCanvasAttributes.backgroundColor
+    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
     this.drawGameElements()
     this.drawGrid()
   }
 
   drawGrid () {
     this.ctx.lineWidth = 0.2
-    this.ctx.strokeStyle = '#fff'
+    this.ctx.strokeStyle = tetrisCanvasAttributes.backgroundColor
 
     for (let i = 0; i <= 20; i++) {
       let currentHeight = tetrisCanvasAttributes.heightOffset * i
@@ -100,6 +130,29 @@ export default class DrawComponent extends Component {
 
     return (
       <section>
+        <div>
+          <button onClick={() => this.changeTetrisBg('#FFF')}>
+            White
+          </button>
+          <button onClick={() => this.changeTetrisBg('#D9D9D9')}>
+            Gray
+          </button>
+          <button onClick={() => this.changeTetrisBg('#363636')}>
+            Black
+          </button>
+        </div>
+
+        <div>
+          <button onClick={() => this.startNewGame('easy')}>
+            Easy
+          </button>
+          <button onClick={() => this.startNewGame('medium')}>
+            Medium
+          </button>
+          <button onClick={() => this.startNewGame('hard')}>
+            Hard
+          </button>
+        </div>
         <p>
           Score: <b>{score}</b>
         </p>,

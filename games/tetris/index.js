@@ -2,7 +2,7 @@ import _ from 'lodash'
 import gameBlocks from './components'
 import {games} from 'constants'
 
-const game = function (redrawFunction) {
+const game = function (difficulty) {
   const gameBoard = new Array(10)
   let gameOver = false
   let score = 0
@@ -33,8 +33,7 @@ const game = function (redrawFunction) {
   }
 
   const advanceCurrentBlock = function () {
-    // this can be used for difficulty
-    if (frame % 5 === 0) {
+    if (frame % difficulty === 0) {
       currentBlock.advance(checkCollision)
     }
     frame++
