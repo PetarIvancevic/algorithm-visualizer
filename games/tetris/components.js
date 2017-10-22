@@ -53,30 +53,61 @@ const IBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
   this.type = games.tetris.blockTypes.IBlock
-  const possibleRotations = 2
+  const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
   let tempRotation = currentRotation
-
   this.occupiedPositions = []
 
   this.populateRotationPositions = function () {
-    const currentCoordinates = this.occupiedPositions[0] || {x: 4, y: currentRotation === 1 ? 3 : 0}
+    let x, y
+
+    if (this.occupiedPositions[0]) {
+      x = this.occupiedPositions[0].x
+      y = this.occupiedPositions[0].y
+    } else {
+      switch (currentRotation) {
+        case 1:
+        case 4:
+          x = 3; y = 2
+          break
+        case 2:
+        case 3:
+          x = 4; y = 1
+          break
+      }
+    }
+
     let newPositions = []
 
-    if (tempRotation === 1) {
-      for (let i = 0; i < 4; i++) {
-        newPositions[i] = {
-          x: currentCoordinates.x,
-          y: currentCoordinates.y - i
-        }
-      }
-    } else {
-      for (let i = 0; i < 4; i++) {
-        newPositions[i] = {
-          x: currentCoordinates.x + i,
-          y: currentCoordinates.y
-        }
-      }
+    switch (tempRotation) {
+      case 1:
+        x += 1
+        y -= 1
+        newPositions[0] = {x, y}
+        newPositions[1] = {x: x - 2, y}
+        newPositions[2] = {x: x - 1, y}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 2:
+        newPositions[0] = {x, y}
+        newPositions[1] = {x, y: y - 1}
+        newPositions[2] = {x, y: y + 1}
+        newPositions[3] = {x, y: y + 2}
+        break
+      case 3:
+        x -= 1
+        y += 1
+        newPositions[0] = {x, y}
+        newPositions[1] = {x: x - 1, y}
+        newPositions[2] = {x: x - 2, y}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 4:
+        newPositions[0] = {x, y}
+        newPositions[1] = {x, y: y - 2}
+        newPositions[2] = {x, y: y - 1}
+        newPositions[3] = {x, y: y + 1}
+        break
     }
 
     if (isRotationPossibleFn(newPositions)) {
@@ -86,7 +117,7 @@ const IBlock = function (nextBlockFn, isRotationPossibleFn) {
   }
 
   this.changeRotation = function () {
-    tempRotation = (tempRotation % 2) + 1
+    tempRotation = (tempRotation % 4) + 1
     this.populateRotationPositions()
   }
 
@@ -98,7 +129,51 @@ const JBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
   this.type = games.tetris.blockTypes.JBlock
-  this.occupiedPositions = [{}]
+  const possibleRotations = 4
+  let currentRotation = _.random(1, possibleRotations)
+  let tempRotation = currentRotation
+
+  this.occupiedPositions = []
+
+  this.populateRotationPositions = function () {
+    const {x, y} = this.occupiedPositions[0] || {x: 4, y: 1}
+    let newPositions = [{x, y}]
+
+    switch (tempRotation) {
+      case 1:
+        newPositions[1] = {x: x - 1, y: y - 1}
+        newPositions[2] = {x: x - 1, y}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 2:
+        newPositions[1] = {x: x + 1, y: y - 1}
+        newPositions[2] = {x, y: y - 1}
+        newPositions[3] = {x, y: y + 1}
+        break
+      case 3:
+        newPositions[1] = {x: x - 1, y}
+        newPositions[2] = {x: x + 1, y}
+        newPositions[3] = {x: x + 1, y: y + 1}
+        break
+      case 4:
+        newPositions[1] = {x: x - 1, y: y + 1}
+        newPositions[2] = {x, y: y + 1}
+        newPositions[3] = {x, y: y - 1}
+        break
+    }
+
+    if (isRotationPossibleFn(newPositions)) {
+      this.occupiedPositions = newPositions
+      currentRotation = tempRotation
+    }
+  }
+
+  this.changeRotation = function () {
+    tempRotation = (tempRotation % 4) + 1
+    this.populateRotationPositions()
+  }
+
+  this.populateRotationPositions()
 }
 
 // L-block
@@ -106,7 +181,51 @@ const LBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
   this.type = games.tetris.blockTypes.LBlock
-  this.occupiedPositions = [{}]
+  const possibleRotations = 4
+  let currentRotation = _.random(1, possibleRotations)
+  let tempRotation = currentRotation
+
+  this.occupiedPositions = []
+
+  this.populateRotationPositions = function () {
+    const {x, y} = this.occupiedPositions[0] || {x: 4, y: 1}
+    let newPositions = [{x, y}]
+
+    switch (tempRotation) {
+      case 1:
+        newPositions[1] = {x: x - 1, y}
+        newPositions[2] = {x: x + 1, y}
+        newPositions[3] = {x: x + 1, y: y - 1}
+        break
+      case 2:
+        newPositions[1] = {x, y: y - 1}
+        newPositions[2] = {x, y: y + 1}
+        newPositions[3] = {x: x + 1, y: y + 1}
+        break
+      case 3:
+        newPositions[1] = {x: x - 1, y: y + 1}
+        newPositions[2] = {x: x - 1, y}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 4:
+        newPositions[1] = {x: x - 1, y: y - 1}
+        newPositions[2] = {x, y: y - 1}
+        newPositions[3] = {x, y: y + 1}
+        break
+    }
+
+    if (isRotationPossibleFn(newPositions)) {
+      this.occupiedPositions = newPositions
+      currentRotation = tempRotation
+    }
+  }
+
+  this.changeRotation = function () {
+    tempRotation = (tempRotation % 4) + 1
+    this.populateRotationPositions()
+  }
+
+  this.populateRotationPositions()
 }
 
 // O-block
@@ -132,7 +251,51 @@ const SBlock = function (nextBlockFn, isRotationPossibleFn) {
   baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
 
   this.type = games.tetris.blockTypes.SBlock
-  this.occupiedPositions = [{}]
+  const possibleRotations = 4
+  let currentRotation = _.random(1, possibleRotations)
+  let tempRotation = currentRotation
+
+  this.occupiedPositions = []
+
+  this.populateRotationPositions = function () {
+    const {x, y} = this.occupiedPositions[0] || {x: 4, y: 1}
+    let newPositions = [{x, y}]
+
+    switch (tempRotation) {
+      case 1:
+        newPositions[1] = {x: x - 1, y}
+        newPositions[2] = {x, y: y - 1}
+        newPositions[3] = {x: x + 1, y: y - 1}
+        break
+      case 2:
+        newPositions[1] = {x, y: y - 1}
+        newPositions[2] = {x: x + 1, y}
+        newPositions[3] = {x: x + 1, y: y + 1}
+        break
+      case 3:
+        newPositions[1] = {x: x - 1, y: y + 1}
+        newPositions[2] = {x, y: y + 1}
+        newPositions[3] = {x: x + 1, y}
+        break
+      case 4:
+        newPositions[1] = {x: x - 1, y: y - 1}
+        newPositions[2] = {x: x - 1, y}
+        newPositions[3] = {x, y: y + 1}
+        break
+    }
+
+    if (isRotationPossibleFn(newPositions)) {
+      this.occupiedPositions = newPositions
+      currentRotation = tempRotation
+    }
+  }
+
+  this.changeRotation = function () {
+    tempRotation = (tempRotation % 4) + 1
+    this.populateRotationPositions()
+  }
+
+  this.populateRotationPositions()
 }
 
 // T-block

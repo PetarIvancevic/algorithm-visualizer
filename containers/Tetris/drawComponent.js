@@ -35,6 +35,7 @@ export default class DrawComponent extends Component {
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 20; j++) {
         if (gameBoard[i][j]) {
+          this.ctx.beginPath()
           this.ctx.rect(
             tetrisCanvasAttributes.widthOffset * i,
             tetrisCanvasAttributes.heightOffset * j,
@@ -48,6 +49,7 @@ export default class DrawComponent extends Component {
     }
 
     for (let i = 0; i < _.size(currentBlock.occupiedPositions); i++) {
+      this.ctx.beginPath()
       this.ctx.rect(
         tetrisCanvasAttributes.widthOffset * currentBlock.occupiedPositions[i].x,
         tetrisCanvasAttributes.heightOffset * currentBlock.occupiedPositions[i].y,
