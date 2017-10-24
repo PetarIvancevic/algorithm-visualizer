@@ -1,7 +1,9 @@
 export const canvasNodeProperties = {
   bgColor: '#026696',
+  markedBgColor: '#32E5B5',
   connectionLineColor: '#026696',
-  textColor: '#fff'
+  textColor: '#FFF',
+  markedTextColor: '#333'
 }
 
 export const implementedAlgorithms = {

@@ -25,7 +25,7 @@ npm run dev
 - Learn in the progress
 
 # Implemented Algorithms
-- Work in progress...
+- Breadth first search
 
  The [book](http://aima.cs.berkeley.edu/) which I will be using. I highly recommend it if anyone is interested in Artificial Intelligence, AI in `games`, Machine Learning, etc.
 

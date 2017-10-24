@@ -10,11 +10,11 @@ function CreateTree (data, depth) {
   this.depth = 0
   this.nodes = [data]
 
-  this.pushNode = function (childData, parent, leftRight) {
+  this.pushNode = function (id, childData, parent, leftRight) {
     // left child will be 2n + 1
     // right child will be 2n + 2
     const helper = leftRight === 'left' ? 1 : 2
-    const child = new CreateTreeNode(childData, parent)
+    const child = new CreateTreeNode(id, childData, parent)
 
     parent.children[helper - 1] = child
     this.nodes.push(child)
@@ -22,12 +22,11 @@ function CreateTree (data, depth) {
 }
 
 export function generateTreeWithData (depth = 0, dataType, includeDataArray = []) {
-  if (depth > 17) {
-    global.alert('Please contact the dev for depth over 17!', depth)
-    errorOut('You went to far')
+  if (depth > 4) {
+    return
   }
 
-  const tree = new CreateTree(new CreateTreeNode(randomOfType(dataType)), depth)
+  const tree = new CreateTree(new CreateTreeNode(0, randomOfType(dataType)), depth)
 
   for (let i = 0; i < depth; i++) {
     // i^2 - 1  => first element at depth "i"
@@ -35,9 +34,9 @@ export function generateTreeWithData (depth = 0, dataType, includeDataArray = []
     let startIndex = Math.pow(2, i)
     let parents = _.slice(tree.nodes, startIndex - 1, (2 * startIndex) - 1)
 
-    _.each(parents, function (parent) {
-      tree.pushNode(randomOfType(dataType), parent, 'left')
-      tree.pushNode(randomOfType(dataType), parent, 'right')
+    _.each(parents, function (parent, index) {
+      tree.pushNode(`${i}-0-${index}`, randomOfType(dataType), parent, 'left')
+      tree.pushNode(`${i}-1-${index}`, randomOfType(dataType), parent, 'right')
     })
 
     tree.depth++
@@ -52,10 +51,19 @@ export function generateTreeWithData (depth = 0, dataType, includeDataArray = []
   return tree
 }
 
-export function CreateTreeNode (data, parent) {
+export function CreateTreeNode (id, data, parent) {
   this.data = data
   this.parent = parent
   this.children = []
+  this.id = id
+
+  let isMarked = false
+
+  this.toggleHelperMarker = function (status) {
+    isMarked = status
+  }
+
+  this.isNodeMarked = function () { return isMarked }
 }
 
 function randomOfType (types) {

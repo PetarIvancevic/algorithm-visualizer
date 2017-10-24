@@ -10,44 +10,54 @@ export default class BreadthSearch extends Component {
   constructor (props) {
     super(props)
 
-    this.updatePage = this.updatePage.bind(this)
     this.updateState = this.updateState.bind(this)
     this.generateTree = this.generateTree.bind(this)
     this.state = {
       searchValue: 5,
-      show: 'all',
+      showErrorModal: false,
+      foundTreeNode: null,
       tree: generateTreeWithData(1, 'number', [5]),
       treeDepth: 1
     }
   }
 
   componentWillMount () {
-    const {searchValue} = this.state
-    console.log(breadthFirstSearch(this.state.tree.root, function (node) {
+    this.findValue(this.state.searchValue)
+  }
+
+  findValue (searchValue) {
+    const foundTreeNode = breadthFirstSearch(this.state.tree.root, function (node) {
       return (node.data === searchValue)
-    }))
+    })
+
+    if (foundTreeNode) {
+      this.setState({foundTreeNode})
+    }
   }
 
   generateTree () {
     const {treeDepth, searchValue} = this.state
     const tree = generateTreeWithData(treeDepth, 'number', [searchValue])
 
-    this.setState({tree})
+    if (!tree) {
+      this.setState({showErrorModal: true})
+    } else {
+      this.setState({tree, showErrorModal: false})
+    }
+
+    this.findValue(searchValue)
   }
 
   updateState (type, val) {
     this.setState({[type]: _.toInteger(val)})
   }
 
-  updatePage (show) {
-    this.setState({show})
-  }
-
   render () {
     const drawComponentAttributes = {
+      foundTreeNode: this.state.foundTreeNode,
       generateTree: this.generateTree,
-      updateState: this.updateState,
-      tree: this.state.tree
+      tree: this.state.tree,
+      updateState: this.updateState
     }
 
     return (
