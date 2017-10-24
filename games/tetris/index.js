@@ -52,7 +52,6 @@ const game = function (difficulty) {
   const endGame = function () {
     gameOver = true
     document.body.removeEventListener('keypress', registerEventListeners)
-    console.log('endGame')
   }
 
   const fixateBlockAndSetNewBlock = function (type, occupiedPositions) {
@@ -79,6 +78,8 @@ const game = function (difficulty) {
   this.getNextBlock = function () { return nextBlockType }
 
   this.getCurrentBlock = function () { return currentBlock }
+
+  this.isGameOver = function () { return gameOver }
 
   const isRotationPossible = function (positions) {
     for (let i = 0; i < _size(positions); i++) {

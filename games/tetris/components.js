@@ -2,8 +2,9 @@ import _ from 'lodash'
 
 import {games} from 'constants'
 
-const baseBlock = function (nextBlockFn, isRotationPossibleFn) {
+const baseBlock = function (nextBlockFn, isRotationPossibleFn, blockType) {
   this.isMovable = true
+  this.type = this.type = games.tetris.blockTypes[blockType]
 
   this.advance = function (checkCollision, boardHeight = 20) {
     let occupiedPositionsSize = _.size(this.occupiedPositions)
@@ -50,9 +51,8 @@ const baseBlock = function (nextBlockFn, isRotationPossibleFn) {
 
 // I-block
 const IBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
+  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'IBlock')
 
-  this.type = games.tetris.blockTypes.IBlock
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
   let tempRotation = currentRotation
@@ -126,9 +126,8 @@ const IBlock = function (nextBlockFn, isRotationPossibleFn) {
 
 // J-block
 const JBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
+  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'JBlock')
 
-  this.type = games.tetris.blockTypes.JBlock
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
   let tempRotation = currentRotation
@@ -178,9 +177,8 @@ const JBlock = function (nextBlockFn, isRotationPossibleFn) {
 
 // L-block
 const LBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
+  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'LBlock')
 
-  this.type = games.tetris.blockTypes.LBlock
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
   let tempRotation = currentRotation
@@ -230,9 +228,8 @@ const LBlock = function (nextBlockFn, isRotationPossibleFn) {
 
 // O-block
 const OBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
+  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'OBlock')
 
-  this.type = games.tetris.blockTypes.OBlock
   this.occupiedPositions = [{
     x: 4, y: 0
   }, {
@@ -248,9 +245,8 @@ const OBlock = function (nextBlockFn, isRotationPossibleFn) {
 
 // S-block
 const SBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
+  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'SBlock')
 
-  this.type = games.tetris.blockTypes.SBlock
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
   let tempRotation = currentRotation
@@ -300,9 +296,8 @@ const SBlock = function (nextBlockFn, isRotationPossibleFn) {
 
 // T-block
 const TBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
+  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'TBlock')
 
-  this.type = games.tetris.blockTypes.TBlock
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
   let tempRotation = currentRotation
@@ -351,9 +346,8 @@ const TBlock = function (nextBlockFn, isRotationPossibleFn) {
 
 // Z-block
 const ZBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn)
+  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'ZBlock')
 
-  this.type = games.tetris.blockTypes.ZBlock
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
   let tempRotation = currentRotation

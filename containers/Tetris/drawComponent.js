@@ -7,19 +7,26 @@ import {games} from 'constants'
 
 const tetrisCanvasAttributes = {
   backgroundColor: '#363636',
+  gameAreaBorderColor: '#fff',
   height: 600,
-  width: 400,
+  width: 600,
   heightOffset: 600 / 20,
-  widthOffset: 400 / 10
+  widthOffset: 300 / 10,
+  gameAreaHeight: 600,
+  gameAreaWidth: 300
 }
 
 export default class DrawComponent extends Component {
   constructor (props) {
     super(props)
 
+    this.clearRedrawInterval = this.clearRedrawInterval.bind(this)
     this.draw = this.draw.bind(this)
+    this.drawBorderForGameArea = this.drawBorderForGameArea.bind(this)
     this.drawGameElements = this.drawGameElements.bind(this)
+    this.drawNextElement = this.drawNextElement.bind(this)
     this.drawGrid = this.drawGrid.bind(this)
+    this.endGame = this.endGame.bind(this)
     this.reDraw = this.reDraw.bind(this)
     this.startNewGame = this.startNewGame.bind(this)
     this.state = {score: 0}
@@ -27,6 +34,18 @@ export default class DrawComponent extends Component {
 
   componentDidMount () {
     this.game = new TetrisGame(this.reDraw)
+  }
+
+  clearRedrawInterval () {
+    if (this.reDrawInterval) {
+      clearInterval(this.reDrawInterval)
+    }
+  }
+
+  endGame () {
+    this.clearRedrawInterval()
+    // TODO add proper modal box
+    global.alert('Game over!')
   }
 
   startNewGame (difficulty) {
@@ -44,80 +63,110 @@ export default class DrawComponent extends Component {
         break
     }
 
-    if (this.reDrawInterval) {
-      clearInterval(this.reDrawInterval)
-    }
+    this.clearRedrawInterval()
 
     this.game = new TetrisGame(frameRate)
     this.reDrawInterval = setInterval(this.reDraw, 60)
   }
 
-  changeTetrisBg (color) {
+  changeTetrisBg (color, gameAreaBorderColor) {
     tetrisCanvasAttributes.backgroundColor = color
+    tetrisCanvasAttributes.gameAreaBorderColor = gameAreaBorderColor
   }
 
   drawGameElements () {
-    this.game.advanceGame()
+    const {ctx} = this
+
     const gameBoard = this.game.getBoard()
     const currentBlock = this.game.getCurrentBlock()
 
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 20; j++) {
         if (gameBoard[i][j]) {
-          this.ctx.beginPath()
-          this.ctx.rect(
+          ctx.beginPath()
+          ctx.rect(
             tetrisCanvasAttributes.widthOffset * i,
             tetrisCanvasAttributes.heightOffset * j,
             tetrisCanvasAttributes.widthOffset,
             tetrisCanvasAttributes.heightOffset
           )
-          this.ctx.fillStyle = games.tetris.blockTypeColors[gameBoard[i][j].type]
-          this.ctx.fill()
+          ctx.fillStyle = games.tetris.blockTypeColors[gameBoard[i][j].type]
+          ctx.fill()
         }
       }
     }
 
     for (let i = 0; i < _.size(currentBlock.occupiedPositions); i++) {
-      this.ctx.beginPath()
-      this.ctx.rect(
+      ctx.beginPath()
+      ctx.rect(
         tetrisCanvasAttributes.widthOffset * currentBlock.occupiedPositions[i].x,
         tetrisCanvasAttributes.heightOffset * currentBlock.occupiedPositions[i].y,
         tetrisCanvasAttributes.widthOffset,
         tetrisCanvasAttributes.heightOffset
       )
-      this.ctx.fillStyle = games.tetris.blockTypeColors[currentBlock.type]
-      this.ctx.fill()
+      ctx.fillStyle = games.tetris.blockTypeColors[currentBlock.type]
+      ctx.fill()
     }
 
     this.setState({score: this.game.getScore()})
   }
 
+  drawBorderForGameArea () {
+    const {ctx} = this
+
+    ctx.strokeStyle = tetrisCanvasAttributes.gameAreaBorderColor
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.moveTo(0, 0)
+    ctx.lineTo(0, tetrisCanvasAttributes.gameAreaHeight)
+    ctx.lineTo(tetrisCanvasAttributes.gameAreaWidth, tetrisCanvasAttributes.gameAreaHeight)
+    ctx.lineTo(tetrisCanvasAttributes.gameAreaWidth, 0)
+    ctx.closePath()
+    ctx.stroke()
+  }
+
+  drawNextElement () {
+    // TODO add code
+  }
+
   reDraw () {
-    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
-    this.ctx.fillStyle = tetrisCanvasAttributes.backgroundColor
-    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
+    const {ctx} = this
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    ctx.fillStyle = tetrisCanvasAttributes.backgroundColor
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    this.game.advanceGame()
     this.drawGameElements()
     this.drawGrid()
+    this.drawBorderForGameArea()
+
+    if (this.game.isGameOver()) {
+      return this.endGame()
+    }
   }
 
   drawGrid () {
-    this.ctx.lineWidth = 0.2
-    this.ctx.strokeStyle = tetrisCanvasAttributes.backgroundColor
+    const {ctx} = this
+
+    ctx.lineWidth = 0.2
+    ctx.strokeStyle = tetrisCanvasAttributes.backgroundColor
 
     for (let i = 0; i <= 20; i++) {
       let currentHeight = tetrisCanvasAttributes.heightOffset * i
-      this.ctx.beginPath()
-      this.ctx.moveTo(0, currentHeight)
-      this.ctx.lineTo(tetrisCanvasAttributes.width, currentHeight)
-      this.ctx.stroke()
+
+      ctx.beginPath()
+      ctx.moveTo(0, currentHeight)
+      ctx.lineTo(tetrisCanvasAttributes.width, currentHeight)
+      ctx.stroke()
     }
 
     for (let i = 0; i <= 10; i++) {
       let currentWidth = tetrisCanvasAttributes.widthOffset * i
-      this.ctx.beginPath()
-      this.ctx.moveTo(currentWidth, 0)
-      this.ctx.lineTo(currentWidth, tetrisCanvasAttributes.height)
-      this.ctx.stroke()
+
+      ctx.beginPath()
+      ctx.moveTo(currentWidth, 0)
+      ctx.lineTo(currentWidth, tetrisCanvasAttributes.height)
+      ctx.stroke()
     }
   }
 
@@ -131,13 +180,13 @@ export default class DrawComponent extends Component {
     return (
       <section>
         <div>
-          <button onClick={() => this.changeTetrisBg('#FFF')}>
+          <button onClick={() => this.changeTetrisBg('#FFF', '#363636')}>
             White
           </button>
-          <button onClick={() => this.changeTetrisBg('#D9D9D9')}>
+          <button onClick={() => this.changeTetrisBg('#D9D9D9', '#333')}>
             Gray
           </button>
-          <button onClick={() => this.changeTetrisBg('#363636')}>
+          <button onClick={() => this.changeTetrisBg('#363636', '#FFF')}>
             Black
           </button>
         </div>
