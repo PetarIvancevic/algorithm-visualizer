@@ -23,6 +23,8 @@ export default class DrawComponent extends Component {
     this.mainDrawFn = this.mainDrawFn.bind(this)
     this.drawSearchColors = this.drawSearchColors.bind(this)
     this.resetMarkedNodes = this.resetMarkedNodes.bind(this)
+    this.startSearching = this.startSearching.bind(this)
+    this.stopSearching = this.stopSearching.bind(this)
   }
 
   getNodeCountAtDepth (depth) {
@@ -71,6 +73,10 @@ export default class DrawComponent extends Component {
       this.resetMarkedNodes()
     }
 
+    if (iterator === _.size(tree.nodes) || !this.isSearching) {
+      return
+    }
+
     tree.nodes[iterator].toggleHelperMarker(true)
     this.mainDrawFn()
 
@@ -78,7 +84,7 @@ export default class DrawComponent extends Component {
       return
     }
 
-    setTimeout(function () {
+    this.searchTimeout = setTimeout(function () {
       drawSearchColors(iterator + 1)
     }, 500)
   }
@@ -126,6 +132,15 @@ export default class DrawComponent extends Component {
     }
   }
 
+  startSearching () {
+    this.isSearching = true
+  }
+
+  stopSearching () {
+    clearTimeout(this.searchTimeout)
+    this.isSearching = false
+  }
+
   mainDrawFn () {
     const {ctx} = this
     const {tree} = this.props
@@ -167,7 +182,8 @@ export default class DrawComponent extends Component {
   }
 
   render () {
-    const {drawSearchColors} = this
+    const {drawSearchColors, startSearching, stopSearching} = this
+    const {generateTree} = this.props
 
     return (
       <section>
@@ -184,10 +200,16 @@ export default class DrawComponent extends Component {
             <input type='number' placeholder={5} onChange={e => this.props.updateState('searchValue', e.target.value)} />
           </label>
           <div>
-            <button onClick={this.props.generateTree}>Render</button>
+            <button onClick={function () {
+              stopSearching()
+              generateTree()
+            }}>Render</button>
           </div>
           <div>
-            <button onClick={function () { drawSearchColors(0) }}>Search Draw</button>
+            <button onClick={function () {
+              startSearching()
+              drawSearchColors(0)
+            }}>Search Draw</button>
           </div>
         </div>
         <Canvas draw={this.draw} attributes={{height: this.props.tree.depth * 70 + 60, width: 700}} />
