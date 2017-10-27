@@ -1,5 +1,4 @@
 import {h, Component} from 'preact' //eslint-disable-line
-// import {Link} from 'preact-router'
 
 import Info from './info'
 import DrawComponent from './drawComponent'

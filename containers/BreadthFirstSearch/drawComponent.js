@@ -207,6 +207,7 @@ export default class DrawComponent extends Component {
           </div>
           <div>
             <button onClick={function () {
+              stopSearching()
               startSearching()
               drawSearchColors(0)
             }}>Search Draw</button>

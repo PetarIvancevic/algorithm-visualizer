@@ -126,7 +126,19 @@ export default class DrawComponent extends Component {
   }
 
   drawNextElement () {
-    // TODO add code
+    const {ctx} = this
+
+    ctx.beginPath()
+    ctx.strokeStyle = tetrisCanvasAttributes.gameAreaBorderColor
+    ctx.lineWidth = 2
+    ctx.moveTo(375, 50)
+    ctx.lineTo(375, 150)
+    ctx.lineTo(525, 150)
+    ctx.lineTo(525, 50)
+    ctx.closePath()
+    ctx.stroke()
+
+    // draw next element block size 30x30
   }
 
   reDraw () {
@@ -139,6 +151,7 @@ export default class DrawComponent extends Component {
     this.drawGameElements()
     this.drawGrid()
     this.drawBorderForGameArea()
+    this.drawNextElement()
 
     if (this.game.isGameOver()) {
       return this.endGame()
@@ -178,7 +191,7 @@ export default class DrawComponent extends Component {
     const {score} = this.state
 
     return (
-      <section>
+      <section className='tetris-controls'>
         <div>
           <button onClick={() => this.changeTetrisBg('#FFF', '#363636')}>
             White
@@ -206,6 +219,7 @@ export default class DrawComponent extends Component {
           Score: <b>{score}</b>
         </p>,
         <Canvas
+          id="game"
           customClass='tetris-canvas'
           draw={this.draw}
           attributes={tetrisCanvasAttributes}
