@@ -127,6 +127,7 @@ export default class DrawComponent extends Component {
 
   drawNextElement () {
     const {ctx} = this
+    const nextElement = this.game.getNextBlock()
 
     ctx.beginPath()
     ctx.strokeStyle = tetrisCanvasAttributes.gameAreaBorderColor
@@ -139,6 +140,7 @@ export default class DrawComponent extends Component {
     ctx.stroke()
 
     // draw next element block size 30x30
+    console.log(nextElement)
   }
 
   reDraw () {
@@ -219,7 +221,6 @@ export default class DrawComponent extends Component {
           Score: <b>{score}</b>
         </p>,
         <Canvas
-          id="game"
           customClass='tetris-canvas'
           draw={this.draw}
           attributes={tetrisCanvasAttributes}

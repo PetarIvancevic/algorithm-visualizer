@@ -37,6 +37,10 @@ const game = function (difficulty) {
         return endGame()
       }
     }
+
+    if (!_size(currentBlock.occupiedPositions)) {
+      return endGame()
+    }
   }
 
   const createGameBoard = function () {

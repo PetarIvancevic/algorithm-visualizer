@@ -14,11 +14,12 @@ const baseBlock = function (nextBlockFn, isRotationPossibleFn, blockType) {
 
       if (newYPosition === 20 || checkCollision(this.occupiedPositions[i].x, newYPosition)) {
         this.isMovable = false
-        nextBlockFn(this.type, this.occupiedPositions)
+        break
       }
     }
 
     if (!this.isMovable) {
+      nextBlockFn(this.type, this.occupiedPositions)
       return
     }
 
