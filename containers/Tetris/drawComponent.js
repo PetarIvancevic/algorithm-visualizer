@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _size from 'lodash/size'
 import {Component, h} from 'preact' //eslint-disable-line
 
 import Canvas from 'components/Canvas'
@@ -16,6 +16,13 @@ const tetrisCanvasAttributes = {
   gameAreaWidth: 300
 }
 
+const nextElementAreaConstants = {
+  xStart: 375,
+  yStart: 75,
+  xEnd: 525,
+  yEnd: 225
+}
+
 export default class DrawComponent extends Component {
   constructor (props) {
     super(props)
@@ -24,8 +31,10 @@ export default class DrawComponent extends Component {
     this.draw = this.draw.bind(this)
     this.drawBorderForGameArea = this.drawBorderForGameArea.bind(this)
     this.drawGameElements = this.drawGameElements.bind(this)
-    this.drawNextElement = this.drawNextElement.bind(this)
     this.drawGrid = this.drawGrid.bind(this)
+    this.drawNextElement = this.drawNextElement.bind(this)
+    this.drawScore = this.drawScore.bind(this)
+    this.drawTextAtLocation = this.drawTextAtLocation.bind(this)
     this.endGame = this.endGame.bind(this)
     this.reDraw = this.reDraw.bind(this)
     this.startNewGame = this.startNewGame.bind(this)
@@ -96,7 +105,7 @@ export default class DrawComponent extends Component {
       }
     }
 
-    for (let i = 0; i < _.size(currentBlock.occupiedPositions); i++) {
+    for (let i = 0; i < _size(currentBlock.occupiedPositions); i++) {
       ctx.beginPath()
       ctx.rect(
         tetrisCanvasAttributes.widthOffset * currentBlock.occupiedPositions[i].x,
@@ -125,22 +134,54 @@ export default class DrawComponent extends Component {
     ctx.stroke()
   }
 
+  drawTextAtLocation (text, x, y) {
+    const {ctx} = this
+
+    ctx.font = '30px Arial'
+    ctx.fillStyle = tetrisCanvasAttributes.gameAreaBorderColor
+    ctx.fillText(text, x, y)
+  }
+
   drawNextElement () {
     const {ctx} = this
     const nextElement = this.game.getNextBlock()
+    let lineWidth = 2
 
     ctx.beginPath()
-    ctx.strokeStyle = tetrisCanvasAttributes.gameAreaBorderColor
-    ctx.lineWidth = 2
-    ctx.moveTo(375, 50)
-    ctx.lineTo(375, 150)
-    ctx.lineTo(525, 150)
-    ctx.lineTo(525, 50)
-    ctx.closePath()
-    ctx.stroke()
+    for (let i = 0; i < _size(nextElement.occupiedPositions); i++) {
+      ctx.rect(
+        nextElementAreaConstants.xStart + tetrisCanvasAttributes.widthOffset * ((nextElement.occupiedPositions[i].x - 2)),
+        nextElementAreaConstants.yStart + tetrisCanvasAttributes.heightOffset * (nextElement.occupiedPositions[i].y),
+        tetrisCanvasAttributes.widthOffset,
+        tetrisCanvasAttributes.heightOffset
+      )
+      ctx.fillStyle = games.tetris.blockTypeColors[nextElement.type]
+      ctx.fill()
+    }
 
-    // draw next element block size 30x30
-    console.log(nextElement)
+    ctx.beginPath()
+    ctx.strokeStyle = tetrisCanvasAttributes.backgroundColor
+    ctx.lineWidth = lineWidth
+
+    for (let i = 0; i < 4; i++) {
+      ctx.moveTo(nextElementAreaConstants.xStart + tetrisCanvasAttributes.widthOffset * i, nextElementAreaConstants.yStart)
+      ctx.lineTo(nextElementAreaConstants.xStart + tetrisCanvasAttributes.widthOffset * i, nextElementAreaConstants.yEnd)
+      ctx.stroke()
+    }
+
+    for (let i = 0; i < 4; i++) {
+      ctx.moveTo(nextElementAreaConstants.xStart, nextElementAreaConstants.yStart + i * tetrisCanvasAttributes.heightOffset)
+      ctx.lineTo(nextElementAreaConstants.xEnd, nextElementAreaConstants.yStart + i * tetrisCanvasAttributes.heightOffset)
+      ctx.stroke()
+    }
+
+    this.drawTextAtLocation('Next Block', nextElementAreaConstants.xStart, nextElementAreaConstants.yStart - 30)
+  }
+
+  drawScore () {
+    const {score} = this.state
+
+    this.drawTextAtLocation(`Score: ${score}`, nextElementAreaConstants.xStart, tetrisCanvasAttributes.heightOffset * 10)
   }
 
   reDraw () {
@@ -154,6 +195,7 @@ export default class DrawComponent extends Component {
     this.drawGrid()
     this.drawBorderForGameArea()
     this.drawNextElement()
+    this.drawScore()
 
     if (this.game.isGameOver()) {
       return this.endGame()
@@ -190,8 +232,6 @@ export default class DrawComponent extends Component {
   }
 
   render () {
-    const {score} = this.state
-
     return (
       <section className='tetris-controls'>
         <div>
@@ -217,11 +257,9 @@ export default class DrawComponent extends Component {
             Hard
           </button>
         </div>
-        <p>
-          Score: <b>{score}</b>
-        </p>,
         <Canvas
           customClass='tetris-canvas'
+          style={{'background': tetrisCanvasAttributes.backgroundColor}}
           draw={this.draw}
           attributes={tetrisCanvasAttributes}
         />

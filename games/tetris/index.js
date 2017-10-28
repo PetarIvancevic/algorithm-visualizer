@@ -9,7 +9,7 @@ const game = function (difficulty) {
   let gameOver = false
   let score = 0
   let frame = 1
-  let currentBlock, currentBlockType, nextBlockType
+  let currentBlock, nextBlockType, nextBlock
 
   const possibleBlockTypes = _keys(games.tetris.blockTypes)
 
@@ -27,8 +27,8 @@ const game = function (difficulty) {
     advanceCurrentBlock()
   }
 
-  const createBlock = function () {
-    currentBlock = new gameBlocks[currentBlockType](fixateBlockAndSetNewBlock, isRotationPossible)
+  const setCurrentBlock = function () {
+    currentBlock = nextBlock
 
     for (let i = 0; i < _size(currentBlock.occupiedPositions); i++) {
       let {x, y} = currentBlock.occupiedPositions[i]
@@ -65,12 +65,13 @@ const game = function (difficulty) {
       gameBoard[x][y] = {type}
     }
 
-    setupNextBlock()
     const fullRowCount = getFullRowsCount()
-    createBlock()
+    setCurrentBlock()
+    setupNextBlock()
 
     if (fullRowCount) {
-      score += fullRowCount * 10
+      let bonusPoints = fullRowCount > 1 ? fullRowCount * 0.5 : 0
+      score += fullRowCount * 10 + (10 * bonusPoints)
       pushFullRowsDown()
     }
   }
@@ -79,7 +80,7 @@ const game = function (difficulty) {
 
   this.getScore = function () { return score }
 
-  this.getNextBlock = function () { return nextBlockType }
+  this.getNextBlock = function () { return nextBlock }
 
   this.getCurrentBlock = function () { return currentBlock }
 
@@ -106,8 +107,8 @@ const game = function (difficulty) {
   }
 
   const setupNextBlock = function () {
-    currentBlockType = nextBlockType
     nextBlockType = getRandomBlockType()
+    nextBlock = new gameBlocks[nextBlockType](fixateBlockAndSetNewBlock, isRotationPossible)
   }
 
   const pushFullRowsDown = function () {
@@ -176,6 +177,7 @@ const game = function (difficulty) {
   const registerEventListeners = function (event) {
     const key = event.key
 
+    console.log(key)
     if (key === 'x') {
       currentBlock.changeRotation()
     } else if (key === 'a') {
@@ -192,7 +194,8 @@ const game = function (difficulty) {
     createGameBoard()
     nextBlockType = getRandomBlockType()
     setupNextBlock()
-    createBlock()
+    setCurrentBlock()
+    setupNextBlock()
 
     document.body.addEventListener('keypress', registerEventListeners)
   }

@@ -31,7 +31,7 @@ class Canvas extends Component {
 
   render () {
     return (
-      <section className='canvas-holder'>
+      <section className='canvas-holder' style={this.props.style}>
         <canvas className={this.props.customClass} ref={this.initCanvasCtx} {...this.props.attributes}>
           Your browser does not support the canvas element
         </canvas>
