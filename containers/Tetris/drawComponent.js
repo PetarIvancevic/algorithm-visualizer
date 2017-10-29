@@ -2,6 +2,7 @@ import _size from 'lodash/size'
 import {Component, h} from 'preact' //eslint-disable-line
 
 import Canvas from 'components/Canvas'
+import Modal from 'components/Modal'
 import TetrisGame from 'games/tetris/index'
 import {games} from 'constants'
 
@@ -38,7 +39,9 @@ export default class DrawComponent extends Component {
     this.endGame = this.endGame.bind(this)
     this.reDraw = this.reDraw.bind(this)
     this.startNewGame = this.startNewGame.bind(this)
-    this.state = {score: 0}
+    this.closeModal = this.closeModal.bind(this)
+    this.openModal = this.openModal.bind(this)
+    this.state = {score: 0, showModal: false}
   }
 
   componentDidMount () {
@@ -53,8 +56,7 @@ export default class DrawComponent extends Component {
 
   endGame () {
     this.clearRedrawInterval()
-    // TODO add proper modal box
-    global.alert('Game over!')
+    this.openModal()
   }
 
   startNewGame (difficulty) {
@@ -81,6 +83,10 @@ export default class DrawComponent extends Component {
   changeTetrisBg (color, gameAreaBorderColor) {
     tetrisCanvasAttributes.backgroundColor = color
     tetrisCanvasAttributes.gameAreaBorderColor = gameAreaBorderColor
+  }
+
+  closeModal () {
+    this.setState({showModal: false})
   }
 
   drawGameElements () {
@@ -231,6 +237,10 @@ export default class DrawComponent extends Component {
     this.ctx = ctx
   }
 
+  openModal () {
+    this.setState({showModal: true})
+  }
+
   render () {
     return (
       <section className='tetris-controls'>
@@ -263,6 +273,13 @@ export default class DrawComponent extends Component {
           draw={this.draw}
           attributes={tetrisCanvasAttributes}
         />
+        {this.state.showModal && <Modal closeFn={this.closeModal}>
+          <section>
+            <h2>Game Over</h2>
+            <p>Thank you for playing!</p>
+            <p>Your final score is <b>{this.state.score}</b></p>
+          </section>
+        </Modal>}
       </section>
     )
   }

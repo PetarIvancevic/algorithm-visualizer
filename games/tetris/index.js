@@ -177,7 +177,6 @@ const game = function (difficulty) {
   const registerEventListeners = function (event) {
     const key = event.key
 
-    console.log(key)
     if (key === 'x') {
       currentBlock.changeRotation()
     } else if (key === 'a') {

@@ -23,6 +23,7 @@ export default function Info () {
 
         <p>
           The algorithm code implemented with javascript is shown below. <a target='_blank' href='https://lodash.com'>Lodash</a> is being used for certain tedious operations.
+          The first node of the frontier is taken and evaluated, if the evaluated node is the result it is returned and the search is over. If the evaluated node is not the result, then the nodes children are added to the frontier <i>(added to the end of the array)</i>.
         </p>
       </section>
       <aside>
@@ -48,13 +49,11 @@ export default function Info () {
         </pre>
       </aside>
       <section>
-        <p>
-          The <i>breadthFirstSearch</i> function accepts two arguments.
-          <ul>
-            <li><b>initialNode</b> - the node where the search starts (in this example it will be the root node)</li>
-            <li><b>solutionFn</b> - a solution function used to test if the searched node is found. This can be any function and in this example it is just checking if the node data is a specific number</li>
-          </ul>
-        </p>
+        <p>The <i>breadthFirstSearch</i> function accepts two arguments.</p>
+        <ul>
+          <li><b>initialNode</b> - the node where the search starts (in this example it will be the root node)</li>
+          <li><b>solutionFn</b> - a solution function used to test if the searched node is found. This can be any function and in this example it is just checking if the node data is a specific number</li>
+        </ul>
       </section>
     </div>
   )
