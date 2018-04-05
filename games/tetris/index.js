@@ -4,7 +4,7 @@ import _random from 'lodash/random'
 import gameBlocks from './components'
 import {games} from 'constants'
 
-const game = function (difficulty) {
+const Game = function (difficulty, AI = false) {
   let gameBoard = new Array(10)
   let gameOver = false
   let score = 0
@@ -16,6 +16,13 @@ const game = function (difficulty) {
   const advanceCurrentBlock = function () {
     if (frame % difficulty === 0) {
       currentBlock.advance(checkCollision)
+
+      if (!currentBlock.isMovable) {
+        fixateBlock(currentBlock.type, currentBlock.occupiedPositions)
+        setCurrentBlock()
+        setupNextBlock()
+        calculatePointsAndPushRowsDown()
+      }
     }
     frame++
   }
@@ -25,6 +32,26 @@ const game = function (difficulty) {
       return
     }
     advanceCurrentBlock()
+  }
+
+  this.AIAdvance = function () {
+    if (gameOver) {
+      return
+    }
+
+    while (currentBlock.isMovable) {
+      currentBlock.advance(checkCollision)
+    }
+  }
+
+  const calculatePointsAndPushRowsDown = function () {
+    const fullRowCount = getFullRowsCount()
+
+    if (fullRowCount) {
+      let bonusPoints = fullRowCount > 1 ? fullRowCount * 0.5 : 0
+      score += fullRowCount * 10 + (10 * bonusPoints)
+      pushFullRowsDown()
+    }
   }
 
   const setCurrentBlock = function () {
@@ -58,21 +85,12 @@ const game = function (difficulty) {
     document.body.removeEventListener('keypress', registerEventListeners)
   }
 
-  const fixateBlockAndSetNewBlock = function (type, occupiedPositions) {
+  // const fixateBlockAndSetNewBlock = function (type, occupiedPositions) {
+  const fixateBlock = function (type, occupiedPositions) {
     for (let i = 0; i < _size(occupiedPositions); i++) {
       let {x, y} = occupiedPositions[i]
 
       gameBoard[x][y] = {type}
-    }
-
-    const fullRowCount = getFullRowsCount()
-    setCurrentBlock()
-    setupNextBlock()
-
-    if (fullRowCount) {
-      let bonusPoints = fullRowCount > 1 ? fullRowCount * 0.5 : 0
-      score += fullRowCount * 10 + (10 * bonusPoints)
-      pushFullRowsDown()
     }
   }
 
@@ -85,6 +103,8 @@ const game = function (difficulty) {
   this.getCurrentBlock = function () { return currentBlock }
 
   this.isGameOver = function () { return gameOver }
+
+  this.getCheckCollisionFn = function () { return checkCollision }
 
   const isRotationPossible = function (positions) {
     for (let i = 0; i < _size(positions); i++) {
@@ -108,7 +128,12 @@ const game = function (difficulty) {
 
   const setupNextBlock = function () {
     nextBlockType = getRandomBlockType()
-    nextBlock = new gameBlocks[nextBlockType](fixateBlockAndSetNewBlock, isRotationPossible)
+
+    if (AI) {
+      nextBlock = new gameBlocks[nextBlockType](isRotationPossible)
+    } else {
+      nextBlock = new gameBlocks[nextBlockType](isRotationPossible)
+    }
   }
 
   const pushFullRowsDown = function () {
@@ -196,10 +221,12 @@ const game = function (difficulty) {
     setCurrentBlock()
     setupNextBlock()
 
-    document.body.addEventListener('keypress', registerEventListeners)
+    if (!AI) {
+      document.body.addEventListener('keypress', registerEventListeners)
+    }
   }
 
   init()
 }
 
-export default game
+export default Game

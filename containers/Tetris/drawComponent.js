@@ -44,10 +44,6 @@ export default class DrawComponent extends Component {
     this.state = {score: 0, showModal: false}
   }
 
-  componentDidMount () {
-    this.game = new TetrisGame(this.reDraw)
-  }
-
   clearRedrawInterval () {
     if (this.reDrawInterval) {
       clearInterval(this.reDrawInterval)

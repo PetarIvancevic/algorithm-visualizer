@@ -2,9 +2,9 @@ import _ from 'lodash'
 
 import {games} from 'constants'
 
-const baseBlock = function (nextBlockFn, isRotationPossibleFn, blockType) {
+const baseBlock = function (isRotationPossibleFn, blockType) {
   this.isMovable = true
-  this.type = this.type = games.tetris.blockTypes[blockType]
+  this.type = games.tetris.blockTypes[blockType]
 
   this.advance = function (checkCollision, boardHeight = 20) {
     let occupiedPositionsSize = _.size(this.occupiedPositions)
@@ -18,13 +18,10 @@ const baseBlock = function (nextBlockFn, isRotationPossibleFn, blockType) {
       }
     }
 
-    if (!this.isMovable) {
-      nextBlockFn(this.type, this.occupiedPositions)
-      return
-    }
-
-    for (let i = 0; i < occupiedPositionsSize; i++) {
-      this.occupiedPositions[i].y++
+    if (this.isMovable) {
+      for (let i = 0; i < occupiedPositionsSize; i++) {
+        this.occupiedPositions[i].y++
+      }
     }
   }
 
@@ -51,8 +48,8 @@ const baseBlock = function (nextBlockFn, isRotationPossibleFn, blockType) {
 }
 
 // I-block
-const IBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'IBlock')
+const IBlock = function (isRotationPossibleFn) {
+  baseBlock.call(this, isRotationPossibleFn, 'IBlock')
 
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
@@ -126,8 +123,8 @@ const IBlock = function (nextBlockFn, isRotationPossibleFn) {
 }
 
 // J-block
-const JBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'JBlock')
+const JBlock = function (isRotationPossibleFn) {
+  baseBlock.call(this, isRotationPossibleFn, 'JBlock')
 
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
@@ -177,8 +174,8 @@ const JBlock = function (nextBlockFn, isRotationPossibleFn) {
 }
 
 // L-block
-const LBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'LBlock')
+const LBlock = function (isRotationPossibleFn) {
+  baseBlock.call(this, isRotationPossibleFn, 'LBlock')
 
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
@@ -228,8 +225,8 @@ const LBlock = function (nextBlockFn, isRotationPossibleFn) {
 }
 
 // O-block
-const OBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'OBlock')
+const OBlock = function (isRotationPossibleFn) {
+  baseBlock.call(this, isRotationPossibleFn, 'OBlock')
 
   this.occupiedPositions = [{
     x: 4, y: 0
@@ -245,8 +242,8 @@ const OBlock = function (nextBlockFn, isRotationPossibleFn) {
 }
 
 // S-block
-const SBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'SBlock')
+const SBlock = function (isRotationPossibleFn) {
+  baseBlock.call(this, isRotationPossibleFn, 'SBlock')
 
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
@@ -296,8 +293,8 @@ const SBlock = function (nextBlockFn, isRotationPossibleFn) {
 }
 
 // T-block
-const TBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'TBlock')
+const TBlock = function (isRotationPossibleFn) {
+  baseBlock.call(this, isRotationPossibleFn, 'TBlock')
 
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
@@ -346,8 +343,8 @@ const TBlock = function (nextBlockFn, isRotationPossibleFn) {
 }
 
 // Z-block
-const ZBlock = function (nextBlockFn, isRotationPossibleFn) {
-  baseBlock.call(this, nextBlockFn, isRotationPossibleFn, 'ZBlock')
+const ZBlock = function (isRotationPossibleFn) {
+  baseBlock.call(this, isRotationPossibleFn, 'ZBlock')
 
   const possibleRotations = 4
   let currentRotation = _.random(1, possibleRotations)
