@@ -94,8 +94,11 @@ function populateToFourYCoords (occupiedPositions) {
   return occupiedYPositions
 }
 
-function getFullRowCount (board, occupiedYPositions) {
-  let fullRowCount = 0
+function getRowPopulationData (board, occupiedYPositions) {
+  const rowPopulationData = {
+    fullRowCount: 0,
+    emptyBlocks: 0
+  }
 
   for (let i = 0; i < 4; i++) {
     let currentRow = occupiedYPositions[i]
@@ -104,26 +107,28 @@ function getFullRowCount (board, occupiedYPositions) {
     for (let column = 0; column < 10; column++) {
       if (!board[column][currentRow]) {
         rowIsFull = false
-        break
+        rowPopulationData.emptyBlocks++
       }
     }
 
     if (rowIsFull) {
-      fullRowCount++
+      rowPopulationData.fullRowCount++
     }
   }
 
-  return fullRowCount
+  return rowPopulationData
 }
 
 function calculateReward (board, occupiedYPositions, minialYIndex) {
   if (minialYIndex < 4) {
-    return -100000
+    return -1000
   }
 
-  const fullRowCount = getFullRowCount(board, occupiedYPositions)
-  const bonusPoints = fullRowCount > 1 ? fullRowCount * 0.5 : 0
-  return fullRowCount * 10 + (10 * bonusPoints)
+  const rowPopulationData = getRowPopulationData(board, occupiedYPositions)
+  const bonusPoints = rowPopulationData.fullRowCount > 1 ? rowPopulationData.fullRowCount * 0.5 : 0
+  return rowPopulationData.fullRowCount * 10 + (10 * bonusPoints)
+
+  // return score / (1 + rowPopulationData.emptyBlocks)
 }
 
 function populateBoardWithMove (board, occupiedPositions, value) {
@@ -146,9 +151,7 @@ function getMoveValue (moveNode, board) {
   return reward
 }
 
-function train () {
-  const tetrisGame = new TetrisGame(3, true)
-
+function getBestMoveNode (tetrisGame) {
   let allMoveNodes = [new TreeNode(null, tetrisGame.getCurrentBlock())]
   let blockPositions = [_.cloneDeep(tetrisGame.getCurrentBlock())]
 
@@ -167,7 +170,7 @@ function train () {
     blockPositions = _.concat(newUniqueMoves, blockPositions)
   }
 
-  let bestMoves = {moveValue: -10000, sameValueMoveIndexes: []}
+  let bestMoves = {moveValue: -100000, sameValueMoveIndexes: []}
 
   _.each(allMoveNodes, function (moveNode, index) {
     if (moveNode.block.isMovable) return
@@ -185,12 +188,42 @@ function train () {
       }
     }
   })
-
   const bestMoveIndex = bestMoves.sameValueMoveIndexes[_.random(_.size(bestMoves.sameValueMoveIndexes) - 1)]
 
-  // console.log(bestMoves)
-  // console.log(bestMoveIndex)
-  window.GAME = tetrisGame
+  return allMoveNodes[bestMoveIndex]
+}
+
+function playOneEpisode (tetrisGame) {
+  let allBestMoves = []
+
+  while (!tetrisGame.isGameOver()) {
+    let bestMoveNode = getBestMoveNode(tetrisGame)
+
+    if (!bestMoveNode) {
+      break
+    }
+
+    tetrisGame.AIAdvanceGame(bestMoveNode.block)
+  }
+  return allBestMoves
+}
+
+function train () {
+  const NUM_GAMES_TO_PLAY = 10000
+  let gamePoints = []
+
+  for (let i = 0; i < NUM_GAMES_TO_PLAY; i++) {
+    console.log('Playing...')
+    let tetrisGame = new TetrisGame(3, true)
+    window.GAME = tetrisGame
+    let episodeBestMoves = playOneEpisode(tetrisGame)
+    gamePoints.push(tetrisGame.getScore())
+  }
+
+  let groupedResults = _.groupBy(gamePoints)
+  _.each(groupedResults, function (resultArray) {
+    console.log(`Points: ${resultArray[0]}`, _.size(resultArray))
+  })
 }
 
 export default {

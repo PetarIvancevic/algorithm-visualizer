@@ -34,14 +34,17 @@ const Game = function (difficulty, AI = false) {
     advanceCurrentBlock()
   }
 
-  this.AIAdvance = function () {
+  this.AIAdvanceGame = function (bestMoveBlock) {
     if (gameOver) {
       return
     }
 
-    while (currentBlock.isMovable) {
-      currentBlock.advance(checkCollision)
-    }
+    currentBlock = bestMoveBlock
+
+    fixateBlock(currentBlock.type, currentBlock.occupiedPositions)
+    setCurrentBlock()
+    setupNextBlock()
+    calculatePointsAndPushRowsDown()
   }
 
   const calculatePointsAndPushRowsDown = function () {
