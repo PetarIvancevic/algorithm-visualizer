@@ -97,7 +97,8 @@ function populateToFourYCoords (occupiedPositions) {
 function getRowPopulationData (board, occupiedYPositions) {
   const rowPopulationData = {
     fullRowCount: 0,
-    emptyBlocks: 0
+    emptyBlocks: 0,
+    additionalPointsForLowerRows: 0
   }
 
   for (let i = 0; i < 4; i++) {
@@ -109,6 +110,8 @@ function getRowPopulationData (board, occupiedYPositions) {
         rowIsFull = false
         rowPopulationData.emptyBlocks++
       }
+      let isFilled = board[column][currentRow] ? 1 : -1
+      rowPopulationData.additionalPointsForLowerRows += (0.5 * currentRow * isFilled)
     }
 
     if (rowIsFull) {
@@ -126,9 +129,9 @@ function calculateReward (board, occupiedYPositions, minialYIndex) {
 
   const rowPopulationData = getRowPopulationData(board, occupiedYPositions)
   const bonusPoints = rowPopulationData.fullRowCount > 1 ? rowPopulationData.fullRowCount * 0.5 : 0
-  return rowPopulationData.fullRowCount * 10 + (10 * bonusPoints)
+  const score = rowPopulationData.fullRowCount * 10 + (10 * bonusPoints)
 
-  // return score / (1 + rowPopulationData.emptyBlocks)
+  return score + rowPopulationData.additionalPointsForLowerRows
 }
 
 function populateBoardWithMove (board, occupiedPositions, value) {
