@@ -1,13 +1,12 @@
 import 'isomorphic-fetch'
 import _ from 'lodash'
 import brain from 'brain.js'
-import fs from 'fs'
 
 import TetrisGame from 'games/tetris'
 
 const aiConstants = {
   COLUMN_COUNT: 10,
-  ROW_COUNT: 4,
+  ROW_COUNT: 4
 }
 
 function pushFullRowsDown (board) {
@@ -188,7 +187,6 @@ function populateToFourYCoords (occupiedPositions) {
   return occupiedRows
 }
 
-
 // Neural network will do this
 
 // function getRowPopulationData (board, occupiedRows) {
@@ -224,7 +222,7 @@ function populateToFourYCoords (occupiedPositions) {
 
 function getRowPopulationData (board, occupiedRows) {
   const rowPopulationData = {
-    fullRowCount: 0,
+    fullRowCount: 0
   }
 
   for (let i = 0; i < aiConstants.ROW_COUNT; i++) {
@@ -348,7 +346,7 @@ function stripAllMovesData (moves) {
 async function writeMovesToFile (moves) {
   const gameData = stripAllMovesData(moves[0])
 
-  await fetch('/api/write', {
+  await fetch('/api/write', { // eslint-disable-line
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -432,7 +430,7 @@ function constructNetworkInitialData (input, output) {
 }
 
 const net = new brain.NeuralNetwork({
-  hiddenLayers: [20, 10, 5, 2],
+  hiddenLayers: [20, 10, 5, 2]
 })
 
 // initial train
