@@ -1,14 +1,107 @@
+import 'isomorphic-fetch'
 import _ from 'lodash'
+import brain from 'brain.js'
+import fs from 'fs'
 
 import TetrisGame from 'games/tetris'
+
+const aiConstants = {
+  COLUMN_COUNT: 10,
+  ROW_COUNT: 4,
+}
+
+function pushFullRowsDown (board) {
+  let tempGameBoard = _.cloneDeep(board)
+
+  function boardHasFullRows () {
+    for (let row = 19; row >= 0; row--) {
+      let rowIsFull = true
+
+      for (let column = 0; column < aiConstants.COLUMN_COUNT; column++) {
+        if (!tempGameBoard[column][row]) {
+          rowIsFull = false
+          break
+        }
+      }
+
+      if (rowIsFull) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  function pushRowsDownFromIndex (rowIndex) {
+    for (let column = 0; column < aiConstants.COLUMN_COUNT; column++) {
+      delete tempGameBoard[column][rowIndex]
+    }
+
+    for (let row = rowIndex; row > 0; row--) {
+      for (let column = 0; column < aiConstants.COLUMN_COUNT; column++) {
+        tempGameBoard[column][row] = tempGameBoard[column][row - 1]
+      }
+    }
+
+    for (let column = 0; column < aiConstants.COLUMN_COUNT; column++) {
+      tempGameBoard[column][0] = null
+    }
+  }
+
+  while (boardHasFullRows()) {
+    for (let row = 19; row >= 0; row--) {
+      let isRowFull = true
+
+      for (let column = 0; column < aiConstants.COLUMN_COUNT; column++) {
+        if (!tempGameBoard[column][row]) {
+          isRowFull = false
+        }
+      }
+
+      if (isRowFull) {
+        pushRowsDownFromIndex(row)
+        row++
+      }
+    }
+  }
+
+  return tempGameBoard
+}
+
+function getBoardVector (board, occupiedRows) {
+  const boardVector = []
+
+  for (let i = 0; i < aiConstants.ROW_COUNT; i++) {
+    for (let column = 0; column < aiConstants.COLUMN_COUNT; column++) {
+      boardVector.push(board[column][occupiedRows[i]] ? 1 : 0)
+    }
+  }
+
+  return boardVector
+}
 
 const TreeNode = function (parentNode, currentBlock) {
   this.children = []
   this.parent = parentNode
   this.block = _.cloneDeep(currentBlock)
+  this.reward = 0
+  this.board = []
 
   this.addChild = function (childNode) {
     this.children.push(childNode)
+  }
+
+  this.setReward = function (reward) {
+    this.reward = reward
+  }
+
+  this.setBoardVector = function (board, occupiedRows) {
+    const cleanedBoard = pushFullRowsDown(board)
+    this.boardVector = getBoardVector(cleanedBoard, occupiedRows)
+  }
+
+  this.setFinalOutput = function () {
+    this.output = this.reward * net.run(this.boardVector)
   }
 }
 
@@ -73,45 +166,76 @@ function getParentNode (parentMove, allMoveNodes) {
   })
 }
 
-function addYCoord (occupiedYPositions) {
-  if ((_.max(occupiedYPositions) + 1) <= 19) {
-    occupiedYPositions.push(_.max(occupiedYPositions) + 1)
+function addRowCoord (occupiedRows) {
+  if ((_.max(occupiedRows) + 1) <= 19) {
+    occupiedRows.push(_.max(occupiedRows) + 1)
   } else {
-    occupiedYPositions.push(_.min(occupiedYPositions) - 1)
+    occupiedRows.push(_.min(occupiedRows) - 1)
   }
 }
 
 function populateToFourYCoords (occupiedPositions) {
-  let occupiedYPositions = _(occupiedPositions).map('y').union().value()
-  const numYCoords = _.size(occupiedYPositions)
+  let occupiedRows = _(occupiedPositions).map('y').union().value()
+  const numYCoords = _.size(occupiedRows)
 
   if (numYCoords !== 4) {
     for (let i = 0; i < (4 - numYCoords); i++) {
-      addYCoord(occupiedYPositions)
+      addRowCoord(occupiedRows)
     }
   }
 
-  return occupiedYPositions
+  _.sortBy(occupiedRows, x => x)
+  return occupiedRows
 }
 
-function getRowPopulationData (board, occupiedYPositions) {
+
+// Neural network will do this
+
+// function getRowPopulationData (board, occupiedRows) {
+//   const rowPopulationData = {
+//     additionalPointsForLowerRows: 0,
+//     boardVector: [],
+//     emptyBlocks: 0,
+//     fullRowCount: 0,
+//   }
+
+//   for (let i = 0; i < 4; i++) {
+//     let currentRow = occupiedRows[i]
+//     let rowIsFull = true
+
+//     for (let column = 0; column < 10; column++) {
+//       rowPopulationData.boardVector.push(board[column][currentRow] ? 1 : 0)
+
+//       if (!board[column][currentRow]) {
+//         rowIsFull = false
+//         rowPopulationData.emptyBlocks++
+//       }
+//       let isFilled = board[column][currentRow] ? 1 : -1
+//       rowPopulationData.additionalPointsForLowerRows += (0.5 * currentRow * isFilled)
+//     }
+
+//     if (rowIsFull) {
+//       rowPopulationData.fullRowCount++
+//     }
+//   }
+
+//   return rowPopulationData
+// }
+
+function getRowPopulationData (board, occupiedRows) {
   const rowPopulationData = {
     fullRowCount: 0,
-    emptyBlocks: 0,
-    additionalPointsForLowerRows: 0
   }
 
-  for (let i = 0; i < 4; i++) {
-    let currentRow = occupiedYPositions[i]
+  for (let i = 0; i < aiConstants.ROW_COUNT; i++) {
+    let currentRow = occupiedRows[i]
     let rowIsFull = true
 
-    for (let column = 0; column < 10; column++) {
+    for (let column = 0; column < aiConstants.COLUMN_COUNT; column++) {
       if (!board[column][currentRow]) {
         rowIsFull = false
-        rowPopulationData.emptyBlocks++
+        break
       }
-      let isFilled = board[column][currentRow] ? 1 : -1
-      rowPopulationData.additionalPointsForLowerRows += (0.5 * currentRow * isFilled)
     }
 
     if (rowIsFull) {
@@ -122,16 +246,13 @@ function getRowPopulationData (board, occupiedYPositions) {
   return rowPopulationData
 }
 
-function calculateReward (board, occupiedYPositions, minialYIndex) {
-  if (minialYIndex < 4) {
+function calculateReward (fullRowCount, minimalRowIndex) {
+  if (minimalRowIndex < 4) {
     return -1000
   }
+  const bonusPoints = fullRowCount > 1 ? fullRowCount * 0.5 : 0
 
-  const rowPopulationData = getRowPopulationData(board, occupiedYPositions)
-  const bonusPoints = rowPopulationData.fullRowCount > 1 ? rowPopulationData.fullRowCount * 0.5 : 0
-  const score = rowPopulationData.fullRowCount * 10 + (10 * bonusPoints)
-
-  return score + rowPopulationData.additionalPointsForLowerRows
+  return fullRowCount * 10 + (10 * bonusPoints)
 }
 
 function populateBoardWithMove (board, occupiedPositions, value) {
@@ -146,12 +267,17 @@ function populateBoardWithMove (board, occupiedPositions, value) {
 
 function getMoveValue (moveNode, board) {
   // get unique Y coords
-  let occupiedYPositions = populateToFourYCoords(moveNode.block.occupiedPositions)
+  let occupiedRows = populateToFourYCoords(moveNode.block.occupiedPositions)
   populateBoardWithMove(board, moveNode.block.occupiedPositions, 1)
-  const reward = calculateReward(board, occupiedYPositions, _.min(occupiedYPositions))
+
+  const rowPopulationData = getRowPopulationData(board, occupiedRows)
+  const reward = calculateReward(rowPopulationData.fullRowCount, _.min(occupiedRows))
+  moveNode.setReward(reward)
+  moveNode.setBoardVector(board, occupiedRows)
+
   populateBoardWithMove(board, moveNode.block.occupiedPositions)
 
-  return reward
+  return reward + net.run(moveNode.boardVector)
 }
 
 function getBestMoveNode (tetrisGame) {
@@ -179,6 +305,7 @@ function getBestMoveNode (tetrisGame) {
     if (moveNode.block.isMovable) return
 
     let moveValue = getMoveValue(moveNode, tetrisGame.getBoard())
+    moveNode.setFinalOutput()
 
     if (moveValue === bestMoves.moveValue) {
       bestMoves.sameValueMoveIndexes.push(index)
@@ -197,7 +324,7 @@ function getBestMoveNode (tetrisGame) {
 }
 
 function playOneEpisode (tetrisGame) {
-  let allBestMoves = []
+  let allBestMoveNodes = []
 
   while (!tetrisGame.isGameOver()) {
     let bestMoveNode = getBestMoveNode(tetrisGame)
@@ -206,28 +333,112 @@ function playOneEpisode (tetrisGame) {
       break
     }
 
+    allBestMoveNodes.push(bestMoveNode)
     tetrisGame.AIAdvanceGame(bestMoveNode.block)
   }
-  return allBestMoves
+  return allBestMoveNodes
 }
 
-function train () {
-  const NUM_GAMES_TO_PLAY = 10000
+function stripAllMovesData (moves) {
+  return _.map(moves, function (moveData) {
+    return _.pick(moveData, ['boardVector', 'reward', 'output'])
+  })
+}
+
+async function writeMovesToFile (moves) {
+  const gameData = stripAllMovesData(moves[0])
+
+  await fetch('/api/write', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(gameData)
+  })
+}
+
+function updateNetwork (allMoveNodes) {
+  const moves = stripAllMovesData(allMoveNodes[0])
+
+  function recursiveTraining (input, index) {
+    // no more inputs
+    if (!input) {
+      return [0]
+    }
+
+    net.train({
+      input,
+      output: recursiveTraining(_.get(moves, `[${index}].boardVector`), index + 1)
+    }, {
+      iterations: 1
+    })
+
+    return net.run(input)
+  }
+
+  if (!_.size(moves)) {
+    console.log('No more updates!') // Maybe it could happen?
+    return
+  }
+
+  let oldRes = net.run(moves[0].boardVector)
+  recursiveTraining(moves[0].boardVector, 0)
+
+  console.log(`
+    OLD: ${oldRes}
+    NEW: ${net.run(moves[0].boardVector)}
+  `)
+}
+
+async function train () {
+  const NUM_GAMES_TO_PLAY = 10
   let gamePoints = []
+
+  let allMoveNodes = []
 
   for (let i = 0; i < NUM_GAMES_TO_PLAY; i++) {
     console.log('Playing...')
     let tetrisGame = new TetrisGame(3, true)
     window.GAME = tetrisGame
-    let episodeBestMoves = playOneEpisode(tetrisGame)
+    allMoveNodes.push(playOneEpisode(tetrisGame))
     gamePoints.push(tetrisGame.getScore())
+    updateNetwork(allMoveNodes)
   }
+
+  await writeMovesToFile(allMoveNodes)
 
   let groupedResults = _.groupBy(gamePoints)
   _.each(groupedResults, function (resultArray) {
     console.log(`Points: ${resultArray[0]}`, _.size(resultArray))
   })
 }
+
+/*
+  Neural Network
+*/
+
+function constructNetworkInitialData (input, output) {
+  const initialData = {
+    input: input || [],
+    output: output || [0]
+  }
+  const vectorSize = aiConstants.COLUMN_COUNT * aiConstants.ROW_COUNT
+
+  for (let i = 0; i < vectorSize; i++) {
+    initialData.input.push(0)
+  }
+
+  return initialData
+}
+
+const net = new brain.NeuralNetwork({
+  hiddenLayers: [20, 10, 5, 2],
+})
+
+// initial train
+net.train(constructNetworkInitialData(), {iterations: 1})
+// expose the net to the window
+window.NET = net
 
 export default {
   train
