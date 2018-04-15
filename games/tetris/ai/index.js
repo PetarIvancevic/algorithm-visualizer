@@ -282,7 +282,7 @@ function getMoveValue (moveNode, board) {
   return reward + netConfig.net.run(moveNode.boardVector)
 }
 
-function getBestMoveNode (tetrisGame) {
+function getAllMoveNodes (tetrisGame) {
   let allMoveNodes = [new TreeNode(null, tetrisGame.getCurrentBlock())]
   let blockPositions = [_.cloneDeep(tetrisGame.getCurrentBlock())]
 
@@ -301,6 +301,11 @@ function getBestMoveNode (tetrisGame) {
     blockPositions = _.concat(newUniqueMoves, blockPositions)
   }
 
+  return allMoveNodes
+}
+
+function getBestMoveNode (tetrisGame) {
+  const allMoveNodes = getAllMoveNodes(tetrisGame)
   let bestMoves = {moveValue: -100000, sameValueMoveIndexes: []}
 
   _.each(allMoveNodes, function (moveNode, index) {
@@ -369,21 +374,24 @@ function updateNetwork (allMoveNodes) {
       return [0]
     }
 
+    const networkOutput = recursiveTraining(_.get(moves, `[${index}].boardVector`), index + 1)
+
     netConfig.net.train({
       input,
-      output: [_.get(moves, `[${index}].reward`) + recursiveTraining(_.get(moves, `[${index}].boardVector`), index + 1)]
+      output: [_.get(moves, `[${index}].reward`) + networkOutput]
     }, {
       iterations: 1
     })
 
+    const currentNetworkOutput = netConfig.net.run(input)
     console.log(`
       MOVE: ${index} / ${numMoves}
       INPUT: ${input}
       REWARD: ${moves[index].reward}
-      OUTPUT: ${netConfig.net.run(input)}
+      OUTPUT: ${currentNetworkOutput}
     `)
 
-    return netConfig.net.run(input)
+    return currentNetworkOutput
   }
 
   if (!_.size(moves)) {
@@ -413,9 +421,8 @@ async function train (numGames) {
   }
 
   const NUM_GAMES_TO_PLAY = numGames || 10
-  let gamePoints = []
-
-  let allMoveNodes = []
+  const gamePoints = []
+  const allMoveNodes = []
 
   for (let i = 0; i < NUM_GAMES_TO_PLAY; i++) {
     console.log('Playing...')
@@ -445,7 +452,7 @@ function create (learningRate) {
     const hiddenLayers = []
 
     for (let i = 145; i > 0; i--) {
-      hiddenLayers.push(15)
+      hiddenLayers.push(20)
     }
 
     return _.concat(hiddenLayers, [10, 7, 5, 3, 2])
