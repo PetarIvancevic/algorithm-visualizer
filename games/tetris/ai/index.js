@@ -91,6 +91,10 @@ const TreeNode = function (parentNode, currentBlock) {
   }
 
   this.setReward = function (reward) {
+    if (reward < 0) {
+      reward = -1
+    }
+
     this.reward = reward
   }
 
@@ -100,7 +104,7 @@ const TreeNode = function (parentNode, currentBlock) {
   }
 
   this.setFinalOutput = function () {
-    this.output = this.reward * net.run(this.boardVector)
+    this.output = this.reward * netConfig.net.run(this.boardVector)
   }
 }
 
@@ -275,7 +279,7 @@ function getMoveValue (moveNode, board) {
 
   populateBoardWithMove(board, moveNode.block.occupiedPositions)
 
-  return reward + net.run(moveNode.boardVector)
+  return reward + netConfig.net.run(moveNode.boardVector)
 }
 
 function getBestMoveNode (tetrisGame) {
@@ -357,21 +361,29 @@ async function writeMovesToFile (moves) {
 
 function updateNetwork (allMoveNodes) {
   const moves = stripAllMovesData(allMoveNodes[0])
+  const numMoves = _.size(moves)
 
   function recursiveTraining (input, index) {
     // no more inputs
-    if (!input) {
+    if (!moves[index]) {
       return [0]
     }
 
-    net.train({
+    netConfig.net.train({
       input,
-      output: recursiveTraining(_.get(moves, `[${index}].boardVector`), index + 1)
+      output: [_.get(moves, `[${index}].reward`) + recursiveTraining(_.get(moves, `[${index}].boardVector`), index + 1)]
     }, {
       iterations: 1
     })
 
-    return net.run(input)
+    console.log(`
+      MOVE: ${index} / ${numMoves}
+      INPUT: ${input}
+      REWARD: ${moves[index].reward}
+      OUTPUT: ${netConfig.net.run(input)}
+    `)
+
+    return netConfig.net.run(input)
   }
 
   if (!_.size(moves)) {
@@ -379,17 +391,28 @@ function updateNetwork (allMoveNodes) {
     return
   }
 
-  let oldRes = net.run(moves[0].boardVector)
+  let oldRes = netConfig.net.run(moves[0].boardVector)
+
+  console.log('Training...')
   recursiveTraining(moves[0].boardVector, 0)
 
   console.log(`
     OLD: ${oldRes}
-    NEW: ${net.run(moves[0].boardVector)}
+    NEW: ${netConfig.net.run(moves[0].boardVector)}
   `)
 }
 
-async function train () {
-  const NUM_GAMES_TO_PLAY = 10
+/*
+  BUTTON FUNCTIONS
+*/
+
+async function train (numGames) {
+  if (!netConfig.net) {
+    alert('The network is not created! You probably forgot to call create!')
+    return
+  }
+
+  const NUM_GAMES_TO_PLAY = numGames || 10
   let gamePoints = []
 
   let allMoveNodes = []
@@ -411,33 +434,52 @@ async function train () {
   })
 }
 
-/*
-  Neural Network
-*/
-
-function constructNetworkInitialData (input, output) {
-  const initialData = {
-    input: input || [],
-    output: output || [0]
-  }
-  const vectorSize = aiConstants.COLUMN_COUNT * aiConstants.ROW_COUNT
-
-  for (let i = 0; i < vectorSize; i++) {
-    initialData.input.push(0)
-  }
-
-  return initialData
+// global neural network
+let netConfig = {
+  net: null,
+  learningRate: 0.3,
 }
 
-const net = new brain.NeuralNetwork({
-  hiddenLayers: [20, 10, 5, 2]
-})
+function create (learningRate) {
+  function createHiddenLayers () {
+    const hiddenLayers = []
 
-// initial train
-net.train(constructNetworkInitialData(), {iterations: 1})
-// expose the net to the window
-window.NET = net
+    for (let i = 145; i > 0; i--) {
+      hiddenLayers.push(15)
+    }
+
+    return _.concat(hiddenLayers, [10, 7, 5, 3, 2])
+  }
+
+  function constructNetworkInitialData (input, output) {
+    const initialData = {
+      input: input || [],
+      output: output || [0]
+    }
+    const vectorSize = aiConstants.COLUMN_COUNT * aiConstants.ROW_COUNT
+
+    for (let i = 0; i < vectorSize; i++) {
+      initialData.input.push(0)
+    }
+
+    return initialData
+  }
+
+  netConfig = {
+    learningRate: learningRate || netConfig.learningRate,
+    net: new brain.NeuralNetwork({
+      hiddenLayers: createHiddenLayers()
+    })
+  }
+
+  // initial train
+  netConfig.net.train(constructNetworkInitialData(), {iterations: 1})
+  // expose the net to the window
+  window.NET = netConfig.net
+}
+
 
 export default {
+  create,
   train
 }

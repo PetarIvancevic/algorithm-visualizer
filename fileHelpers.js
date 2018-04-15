@@ -8,7 +8,6 @@ function write (fileName, data) {
 }
 
 function writeOutput (outputData) {
-  console.log('writing', outputData)
   return write('output.txt', outputData)
 }
 

@@ -2,6 +2,21 @@
   font-family: 'Quicksand', sans-serif
   transition: 0.25s
 
+nav
+  ul
+    padding-left: 0
+
+    li
+      display: inline-flex
+      flex-direction: row
+      padding: 5px 0
+      margin-right: 10px
+      list-style: none
+
+      a
+        text-decoration: none
+        font-weight: 700
+
 .content-list
   li
     font-size: 18px
@@ -114,3 +129,14 @@
     opacity: 0.5
     position: absolute
     width: 100%
+
+button
+  background-color: #026696
+  border: 0
+  color: #fff
+  padding: 10px
+  border-radius: 5px
+
+  &:hover
+    cursor: pointer
+    background-color: #41abea

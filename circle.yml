@@ -3,7 +3,7 @@ machine:
     NODE_ENV: test
     PORT: 7000
   node:
-    version: 8.0.0
+    version: 8
 
 dependencies:
   override:
