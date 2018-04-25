@@ -416,7 +416,7 @@ function updateNetwork (allMoveNodes) {
 
 async function train (numGames) {
   if (!netConfig.net) {
-    alert('The network is not created! You probably forgot to call create!')
+    window.alert('The network is not created! You probably forgot to call create!')
     return
   }
 
@@ -444,7 +444,7 @@ async function train (numGames) {
 // global neural network
 let netConfig = {
   net: null,
-  learningRate: 0.3,
+  learningRate: 0.3
 }
 
 function create (learningRate) {
@@ -484,7 +484,6 @@ function create (learningRate) {
   // expose the net to the window
   window.NET = netConfig.net
 }
-
 
 export default {
   create,
