@@ -10,6 +10,11 @@ const aiConstants = {
   MAX_GAME_MOVES: 500
 }
 
+const aiGameTracker = {
+  CURRENT_GAME: 0,
+  TOTAL_SET_NUM_GAMES: 0
+}
+
 function pushFullRowsDown (board) {
   let tempGameBoard = _.cloneDeep(board)
 
@@ -84,8 +89,13 @@ const TreeNode = function (parentNode, currentBlock) {
   this.children = []
   this.parent = parentNode
   this.block = _.cloneDeep(currentBlock)
+  this.numMoves = 0
   this.reward = 0
   this.board = []
+
+  this.setNumMoves = function (numMoves) {
+    this.numMoves = numMoves
+  }
 
   this.addChild = function (childNode) {
     this.children.push(childNode)
@@ -349,7 +359,7 @@ function playOneEpisode (tetrisGame) {
 
 function stripAllMovesData (moves) {
   return _.map(moves, function (moveData) {
-    return _.pick(moveData, ['boardVector', 'reward', 'output'])
+    return _.pick(moveData, ['boardVector', 'reward', 'output', 'numMoves'])
   })
 }
 
@@ -366,7 +376,6 @@ async function writeMovesToFile (moves) {
 }
 
 function updateNetwork (allMoveNodes) {
-  console.log(allMoveNodes)
   const moves = stripAllMovesData(_.last(allMoveNodes))
   const numMoves = _.size(moves)
 
@@ -393,8 +402,10 @@ function updateNetwork (allMoveNodes) {
   })
 
   console.log(`
+    GAME: ${aiGameTracker.CURRENT_GAME} / ${aiGameTracker.TOTAL_SET_NUM_GAMES}
     OLD: ${oldRes}
     NEW: ${netConfig.net.run(moves[0].boardVector)}
+    NUMBER OF MOVES: ${numMoves}
     REWARD: ${finalReward}
   `)
 }
@@ -413,8 +424,12 @@ async function train (numGames) {
   const gamePoints = []
   const allMoveNodes = []
 
+  aiGameTracker.TOTAL_SET_NUM_GAMES = NUM_GAMES_TO_PLAY
+  aiGameTracker.CURRENT_GAME = 0
+
   for (let i = 0; i < NUM_GAMES_TO_PLAY; i++) {
     console.log('Playing...')
+    aiGameTracker.CURRENT_GAME++
     let tetrisGame = new TetrisGame(3, true)
     window.GAME = tetrisGame
     allMoveNodes.push(playOneEpisode(tetrisGame))
