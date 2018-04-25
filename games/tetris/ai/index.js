@@ -6,7 +6,8 @@ import TetrisGame from 'games/tetris'
 
 const aiConstants = {
   COLUMN_COUNT: 10,
-  ROW_COUNT: 4
+  ROW_COUNT: 4,
+  MAX_GAME_MOVES: 500
 }
 
 function pushFullRowsDown (board) {
@@ -92,7 +93,7 @@ const TreeNode = function (parentNode, currentBlock) {
 
   this.setReward = function (reward) {
     if (reward < 0) {
-      reward = -1
+      reward = 0
     }
 
     this.reward = reward
@@ -104,7 +105,7 @@ const TreeNode = function (parentNode, currentBlock) {
   }
 
   this.setFinalOutput = function () {
-    this.output = this.reward * netConfig.net.run(this.boardVector)
+    this.output = netConfig.net.run(this.boardVector)
   }
 }
 
@@ -252,9 +253,7 @@ function calculateReward (fullRowCount, minimalRowIndex) {
   if (minimalRowIndex < 4) {
     return -1000
   }
-  const bonusPoints = fullRowCount > 1 ? fullRowCount * 0.5 : 0
-
-  return fullRowCount * 10 + (10 * bonusPoints)
+  return fullRowCount * 0.25
 }
 
 function populateBoardWithMove (board, occupiedPositions, value) {
@@ -279,7 +278,7 @@ function getMoveValue (moveNode, board) {
 
   populateBoardWithMove(board, moveNode.block.occupiedPositions)
 
-  return reward + netConfig.net.run(moveNode.boardVector)
+  return reward + netConfig.net.run(moveNode.boardVector)[0]
 }
 
 function getAllMoveNodes (tetrisGame) {
@@ -333,15 +332,17 @@ function getBestMoveNode (tetrisGame) {
 function playOneEpisode (tetrisGame) {
   let allBestMoveNodes = []
 
+  let gameMoves = 0
   while (!tetrisGame.isGameOver()) {
     let bestMoveNode = getBestMoveNode(tetrisGame)
 
-    if (!bestMoveNode) {
+    if (!bestMoveNode || gameMoves > aiConstants.MAX_GAME_MOVES) {
       break
     }
 
     allBestMoveNodes.push(bestMoveNode)
     tetrisGame.AIAdvanceGame(bestMoveNode.block)
+    gameMoves++
   }
   return allBestMoveNodes
 }
@@ -365,48 +366,36 @@ async function writeMovesToFile (moves) {
 }
 
 function updateNetwork (allMoveNodes) {
-  const moves = stripAllMovesData(allMoveNodes[0])
+  console.log(allMoveNodes)
+  const moves = stripAllMovesData(_.last(allMoveNodes))
   const numMoves = _.size(moves)
 
-  function recursiveTraining (input, index) {
-    // no more inputs
-    if (!moves[index]) {
-      return [0]
-    }
-
-    const networkOutput = recursiveTraining(_.get(moves, `[${index}].boardVector`), index + 1)
-
-    netConfig.net.train({
-      input,
-      output: [_.get(moves, `[${index}].reward`) + networkOutput]
-    }, {
-      iterations: 1
-    })
-
-    const currentNetworkOutput = netConfig.net.run(input)
-    console.log(`
-      MOVE: ${index} / ${numMoves}
-      INPUT: ${input}
-      REWARD: ${moves[index].reward}
-      OUTPUT: ${currentNetworkOutput}
-    `)
-
-    return currentNetworkOutput
-  }
-
-  if (!_.size(moves)) {
-    console.log('No more updates!') // Maybe it could happen?
-    return
-  }
-
   let oldRes = netConfig.net.run(moves[0].boardVector)
+  const trainingSets = []
+  let finalReward = 0
 
   console.log('Training...')
-  recursiveTraining(moves[0].boardVector, 0)
+  for (let i = 0; i < numMoves - 1; i++) {
+    finalReward += moves[i + 1].reward
+    trainingSets.push({
+      boardVector: moves[i].boardVector,
+      netOutput: [moves[i + 1].reward + netConfig.net.run(moves[i + 1].boardVector)[0]]
+    })
+  }
+
+  netConfig.net.train(_.map(trainingSets, function (trainingSet) {
+    return {
+      input: trainingSet.boardVector,
+      output: trainingSet.netOutput
+    }
+  }), {
+    iterations: 1
+  })
 
   console.log(`
     OLD: ${oldRes}
     NEW: ${netConfig.net.run(moves[0].boardVector)}
+    REWARD: ${finalReward}
   `)
 }
 
@@ -449,13 +438,7 @@ let netConfig = {
 
 function create (learningRate) {
   function createHiddenLayers () {
-    const hiddenLayers = []
-
-    for (let i = 145; i > 0; i--) {
-      hiddenLayers.push(20)
-    }
-
-    return _.concat(hiddenLayers, [10, 7, 5, 3, 2])
+    return [150]
   }
 
   function constructNetworkInitialData (input, output) {
