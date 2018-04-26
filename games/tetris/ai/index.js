@@ -113,10 +113,6 @@ const TreeNode = function (parentNode, currentBlock) {
     const cleanedBoard = pushFullRowsDown(board)
     this.boardVector = getBoardVector(cleanedBoard, occupiedRows)
   }
-
-  this.setFinalOutput = function () {
-    this.output = netConfig.net.run(this.boardVector)
-  }
 }
 
 /*
@@ -263,7 +259,7 @@ function calculateReward (fullRowCount, minimalRowIndex) {
   if (minimalRowIndex < 4) {
     return -1000
   }
-  return fullRowCount * 0.25
+  return fullRowCount * 0.1
 }
 
 function populateBoardWithMove (board, occupiedPositions, value) {
@@ -288,6 +284,7 @@ function getMoveValue (moveNode, board) {
 
   populateBoardWithMove(board, moveNode.block.occupiedPositions)
 
+  // return netConfig.net.run(moveNode.boardVector)[0]
   return reward + netConfig.net.run(moveNode.boardVector)[0]
 }
 
@@ -321,7 +318,6 @@ function getBestMoveNode (tetrisGame) {
     if (moveNode.block.isMovable) return
 
     let moveValue = getMoveValue(moveNode, tetrisGame.getBoard())
-    moveNode.setFinalOutput()
 
     if (moveValue === bestMoves.moveValue) {
       bestMoves.sameValueMoveIndexes.push(index)
@@ -379,7 +375,7 @@ function updateNetwork (allMoveNodes) {
   const moves = stripAllMovesData(_.last(allMoveNodes))
   const numMoves = _.size(moves)
 
-  let oldRes = netConfig.net.run(moves[0].boardVector)
+  let oldRes = netConfig.net.run(moves[0].boardVector)[0]
   const trainingSets = []
   let finalReward = 0
 
@@ -388,10 +384,11 @@ function updateNetwork (allMoveNodes) {
     finalReward += moves[i + 1].reward
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [moves[i + 1].reward + netConfig.net.run(moves[i + 1].boardVector)[0]]
+      netOutput: [moves[i].reward + netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]]
     })
   }
 
+  console.log(trainingSets)
   netConfig.net.train(_.map(trainingSets, function (trainingSet) {
     return {
       input: trainingSet.boardVector,
@@ -404,7 +401,7 @@ function updateNetwork (allMoveNodes) {
   console.log(`
     GAME: ${aiGameTracker.CURRENT_GAME} / ${aiGameTracker.TOTAL_SET_NUM_GAMES}
     OLD: ${oldRes}
-    NEW: ${netConfig.net.run(moves[0].boardVector)}
+    NEW: ${netConfig.net.run(moves[0].boardVector)[0]}
     NUMBER OF MOVES: ${numMoves}
     REWARD: ${finalReward}
   `)
@@ -448,12 +445,16 @@ async function train (numGames) {
 // global neural network
 let netConfig = {
   net: null,
-  learningRate: 0.3
+  learningRate: 0.3,
+  netNormalizedOutput: function (input) {
+    const netResult = this.net.run(input)
+    return netResult[0] > 0.6 ? [0.6] : netResult
+  }
 }
 
 function create (learningRate) {
   function createHiddenLayers () {
-    return [150]
+    return [120]
   }
 
   function constructNetworkInitialData (input, output) {
@@ -470,12 +471,12 @@ function create (learningRate) {
     return initialData
   }
 
-  netConfig = {
+  netConfig = _.assign({}, netConfig, {
     learningRate: learningRate || netConfig.learningRate,
     net: new brain.NeuralNetwork({
       hiddenLayers: createHiddenLayers()
     })
-  }
+  })
 
   // initial train
   netConfig.net.train(constructNetworkInitialData(), {iterations: 1})
