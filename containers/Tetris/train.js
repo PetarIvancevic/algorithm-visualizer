@@ -1,6 +1,8 @@
+import _ from 'lodash'
 import {h, Component} from 'preact' //eslint-disable-line
 
 import AI from 'games/tetris/ai'
+import ChartComponent from 'containers/Tetris/chart'
 import Field from 'components/Field'
 import TetrisHeader from 'containers/Tetris/header'
 
@@ -11,10 +13,13 @@ export default class TetrisAITrain extends Component {
     this.refLearningRate = this.refLearningRate.bind(this)
     this.refNumGames = this.refNumGames.bind(this)
     this.trainNetwork = this.trainNetwork.bind(this)
+
+    this.state = {data: []}
   }
 
   createNetwork () {
     AI.create(this.learningRate.value)
+    this.setState({data: []})
   }
 
   refLearningRate (learningRate) {
@@ -25,8 +30,9 @@ export default class TetrisAITrain extends Component {
     this.numGames = numGames
   }
 
-  trainNetwork () {
-    AI.train(this.numGames.value)
+  async trainNetwork () {
+    const trainingData = await AI.train(this.numGames.value)
+    this.setState({data: _.concat(this.state.data, trainingData)})
   }
 
   render () {
@@ -59,9 +65,7 @@ export default class TetrisAITrain extends Component {
           />
           <button onClick={this.trainNetwork}>TRAIN</button>
         </section>
-        <p>
-          For now, all the logging is done in the browser console...
-        </p>
+        <ChartComponent data={this.state.data} />
       </article>
     )
   }

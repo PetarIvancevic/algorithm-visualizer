@@ -62,8 +62,8 @@ function stripMovesDataForNetworkUpdate (moves) {
   })
 }
 
-function updateNetwork (allMoveNodes) {
-  const moves = stripMovesDataForNetworkUpdate(_.last(allMoveNodes))
+function updateNetwork (gameAllMoves) {
+  const moves = stripMovesDataForNetworkUpdate(gameAllMoves)
   const numMoves = _.size(moves)
 
   let oldRes = netConfig.net.run(moves[0].boardVector)[0]
@@ -156,6 +156,7 @@ async function train (numGames) {
   const NUM_GAMES_TO_PLAY = numGames || aiTrackers.NUM_GAMES_TO_PLAY
   const gamePoints = []
   const allMoveNodes = []
+  const chartData = []
 
   aiTrackers.TOTAL_SET_NUM_GAMES = NUM_GAMES_TO_PLAY
   aiTrackers.CURRENT_GAME = 0
@@ -166,7 +167,13 @@ async function train (numGames) {
     let tetrisGame = new TetrisGame(3, true)
     allMoveNodes.push(simulator.playOneEpisode(tetrisGame, netConfig))
     gamePoints.push(tetrisGame.getScore())
-    updateNetwork(allMoveNodes)
+    chartData.push({
+      totalPoints: tetrisGame.getScore(),
+      firstMoveNetValue: netConfig.net.run(_.last(allMoveNodes)[0].boardVector)[0],
+      numMoves: _.size(_.last(allMoveNodes))
+    })
+    updateNetwork(_.last(allMoveNodes))
+    chartData[i].firstMoveNetValueAfterTraining = netConfig.net.run(_.last(allMoveNodes)[0].boardVector)[0]
   }
 
   // await writeMovesToFile(allMoveNodes)
@@ -178,6 +185,9 @@ async function train (numGames) {
       Number of games with points: ${_.size(resultArray)}
     `)
   })
+
+
+  return chartData
 }
 
 export default {
