@@ -113,7 +113,7 @@ let netConfig = {
 
 function create (learningRate) {
   function createHiddenLayers () {
-    return [120]
+    return [400, 200]
   }
 
   function constructNetworkInitialData (input, output) {
@@ -135,8 +135,9 @@ function create (learningRate) {
   }
 
   netConfig = _.assign({}, netConfig, {
-    learningRate: learningRate || netConfig.learningRate,
     net: new brain.NeuralNetwork({
+      learningRate: _.toNumber(learningRate || netConfig.learningRate),
+      activation: 'sigmoid',
       hiddenLayers: createHiddenLayers()
     })
   })
