@@ -186,7 +186,6 @@ async function train (numGames) {
     `)
   })
 
-
   return chartData
 }
 
