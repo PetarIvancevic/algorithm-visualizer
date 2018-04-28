@@ -11,16 +11,14 @@ class ChartComponent extends Component {
 
   getFormattedData () {
     let formattedData = _.map(this.props.data, function (data) {
-      // return {
-      //   x: data.numMoves,
-      //   y: data.firstMoveNetValue
-      // }
-      return data.firstMoveNetValue
+      return {
+        x: data.numMoves,
+        y: data.firstMoveNetValue
+      }
     })
 
-    console.log(formattedData)
     return {
-      // labels: _.map(this.props.data, 'numMoves'),
+      labels: _.map(this.props.data, 'numMoves'),
       datasets: [{
         label: 'Training results',
         fill: false,
