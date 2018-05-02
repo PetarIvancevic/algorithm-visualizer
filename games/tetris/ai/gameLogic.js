@@ -2,11 +2,24 @@ import _ from 'lodash'
 
 import constants from 'games/tetris/ai/constants'
 
-function pushFullRowsDown (board) {
-  let tempGameBoard = _.cloneDeep(board)
+const BOARD_VECTOR_MAX_HEIGHT_INDEX = 4
+
+function pushFullRowsDown (board, occupiedRows) {
+  let tempGameBoard = []
+  let sortedOccupiedRows = _.clone(occupiedRows)
+  sortedOccupiedRows.sort()
+
+  for (let column = 0; column < _.size(board); column++) {
+    tempGameBoard[column] = []
+
+    for (let occupiedRowIndex = 0; occupiedRowIndex < BOARD_VECTOR_MAX_HEIGHT_INDEX; occupiedRowIndex++) {
+      tempGameBoard[column].push(board[column][occupiedRows[occupiedRowIndex]] ? 1 : 0)
+    }
+  }
 
   function boardHasFullRows () {
-    for (let row = 19; row >= 0; row--) {
+    // we are just working with 4 rows
+    for (let row = BOARD_VECTOR_MAX_HEIGHT_INDEX; row >= 0; row--) {
       let rowIsFull = true
 
       for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
@@ -41,7 +54,7 @@ function pushFullRowsDown (board) {
   }
 
   while (boardHasFullRows()) {
-    for (let row = 19; row >= 0; row--) {
+    for (let row = BOARD_VECTOR_MAX_HEIGHT_INDEX; row >= 0; row--) {
       let isRowFull = true
 
       for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
@@ -93,21 +106,20 @@ function populateLowestFourYCoordsFromOccupiedPositions (occupiedPositions) {
     }
   }
 
-  _.sortBy(occupiedRows, x => x)
-  return occupiedRows
+  return _.sortBy(occupiedRows, x => x)
 }
 
 /*
   Board is updated by REFERENCE
 */
 function populateBoardWithActualMove (board, occupiedPositions, value) {
-  _.each(occupiedPositions, function (occupiedPosition) {
+  for (let i = 0; i < _.size(occupiedPositions); i++) {
     if (value) {
-      board[occupiedPosition.x][occupiedPosition.y] = value
+      board[occupiedPositions[i].x][occupiedPositions[i].y] = value
     } else {
-      delete board[occupiedPosition.x][occupiedPosition.y]
+      delete board[occupiedPositions[i].x][occupiedPositions[i].y]
     }
-  })
+  }
 }
 
 function getFullRowCount (board, occupiedRows) {

@@ -62,6 +62,16 @@ function stripMovesDataForNetworkUpdate (moves) {
   })
 }
 
+// REWARD should be between 0 - 0.4
+// because the net output is limited to 0.6  OLD
+// function normalizeReward (reward) {
+//   return reward ? reward / 100 : 0
+// }
+
+function sigmoidNormalize (result) {
+  return result < 0 ? 0 : result
+}
+
 function updateNetwork (gameAllMoves) {
   const moves = stripMovesDataForNetworkUpdate(gameAllMoves)
   const numMoves = _.size(moves)
@@ -72,10 +82,15 @@ function updateNetwork (gameAllMoves) {
 
   console.log('Training...')
   for (let i = 0; i < numMoves - 1; i++) {
-    finalReward += moves[i + 1].reward
+    if (moves[i].reward >= 0) {
+      finalReward += moves[i].reward
+    }
+
+    console.log(moves[i + 1])
+
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [moves[i].reward + netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]]
+      netOutput: [sigmoidNormalize(moves[i + 1].reward + netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
     })
   }
 
@@ -143,7 +158,7 @@ function create (learningRate) {
   })
 
   // initial train
-  netConfig.net.train(constructNetworkInitialData(), {iterations: 1})
+  netConfig.net.train(constructNetworkInitialData(), {iterations: 20000})
   // expose the net to the window
   window.NET = netConfig.net
 }
@@ -156,7 +171,7 @@ async function train (numGames) {
 
   const NUM_GAMES_TO_PLAY = numGames || aiTrackers.NUM_GAMES_TO_PLAY
   const gamePoints = []
-  const allMoveNodes = []
+  let allMoveNodes = []
   const chartData = []
 
   aiTrackers.TOTAL_SET_NUM_GAMES = NUM_GAMES_TO_PLAY
@@ -175,6 +190,7 @@ async function train (numGames) {
     })
     updateNetwork(_.last(allMoveNodes))
     chartData[i].firstMoveNetValueAfterTraining = netConfig.net.run(_.last(allMoveNodes)[0].boardVector)[0]
+    allMoveNodes = []
   }
 
   // await writeMovesToFile(allMoveNodes)
