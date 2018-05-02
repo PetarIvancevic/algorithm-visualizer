@@ -26,10 +26,10 @@ class ChartComponent extends Component {
   }
 
   getGamePointsFormattedData () {
-    let formattedData = _.map(this.props.data, 'totalPoints')
+    let formattedData = _.map(this.props.data, 'numMoves')
 
     return {
-      labels: _.map(this.props.data, 'numMoves'),
+      labels: _.map(this.props.data, (data, index) => index),
       datasets: [{
         label: 'Training results (Number of moves / Total Game Points)',
         showLine: false,

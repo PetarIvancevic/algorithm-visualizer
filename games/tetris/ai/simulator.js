@@ -107,13 +107,10 @@ function getBestMoveNode (tetrisGame, netConfig) {
   // add random function
   // WATCH OUT FOR BOARD VECTOR GENERATION!
 
-  // console.log(allMoveNodes)
-  // console.log(finalMoves)
-
   _.each(finalMoves, function (moveNode, index) {
     let board = tetrisGame.getBoard()
 
-    let occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(moveNode.block.occupiedPositions)
+    let occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
     // BOARD CHANGED BY REFERENCE
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions, constants.generic.FILLED_CELL_VALUE)
 
@@ -123,6 +120,7 @@ function getBestMoveNode (tetrisGame, netConfig) {
 
     moveNode.setReward(reward)
     moveNode.setBoardVector(board, occupiedRows)
+    moveNode.board = _.cloneDeep(board)
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 

@@ -56,11 +56,11 @@ const aiTrackers = {
 //   })
 // }
 
-function stripMovesDataForNetworkUpdate (moves) {
-  return _.map(moves, function (moveData) {
-    return _.pick(moveData, ['boardVector', 'reward', 'output', 'numMoves'])
-  })
-}
+// function stripMovesDataForNetworkUpdate (moves) {
+//   return _.map(moves, function (moveData) {
+//     return _.pick(moveData, ['boardVector', 'reward', 'output', 'numMoves'])
+//   })
+// }
 
 // REWARD should be between 0 - 0.4
 // because the net output is limited to 0.6  OLD
@@ -72,11 +72,26 @@ function sigmoidNormalize (result) {
   return result < 0 ? 0 : result
 }
 
+// function reluNormalize (result) {
+//   return result > 10 ? 10 : result
+// }
+
+function getNullVector () {
+  let arr = []
+
+  for (let i = 0; i < 40; i++) {
+    arr.push(0)
+  }
+
+  return arr
+}
+
 function updateNetwork (gameAllMoves) {
-  const moves = stripMovesDataForNetworkUpdate(gameAllMoves)
+  // const moves = stripMovesDataForNetworkUpdate(gameAllMoves)
+  const moves = gameAllMoves
   const numMoves = _.size(moves)
 
-  let oldRes = netConfig.net.run(moves[0].boardVector)[0]
+  let oldRes = netConfig.net.run(getNullVector())
   const trainingSets = []
   let finalReward = 0
 
@@ -86,11 +101,11 @@ function updateNetwork (gameAllMoves) {
       finalReward += moves[i].reward
     }
 
-    console.log(moves[i + 1])
+    console.log(moves[i])
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [sigmoidNormalize(moves[i + 1].reward + netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
+      netOutput: [sigmoidNormalize(moves[i].reward + 0.7 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
     })
   }
 
@@ -106,7 +121,7 @@ function updateNetwork (gameAllMoves) {
   console.log(`
     GAME: ${aiTrackers.CURRENT_GAME} / ${aiTrackers.TOTAL_SET_NUM_GAMES}
     OLD: ${oldRes}
-    NEW: ${netConfig.net.run(moves[0].boardVector)[0]}
+    NEW: ${netConfig.net.run(getNullVector())[0]}
     NUMBER OF MOVES: ${numMoves}
     REWARD: ${finalReward}
   `)
@@ -121,6 +136,7 @@ let netConfig = {
   net: null,
   learningRate: 0.3,
   netNormalizedOutput: function (input) {
+    // return this.net.run(input)
     const netResult = this.net.run(input)
     return netResult[0] > 0.6 ? [0.6] : netResult
   }
@@ -134,7 +150,7 @@ function create (learningRate) {
   function constructNetworkInitialData (input, output) {
     const initialData = [{
       input: [],
-      output: [0]
+      output: [1]
     }, {
       input: [],
       output: [1]
@@ -158,7 +174,7 @@ function create (learningRate) {
   })
 
   // initial train
-  netConfig.net.train(constructNetworkInitialData(), {iterations: 20000})
+  netConfig.net.train(constructNetworkInitialData(), {iterations: 1})
   // expose the net to the window
   window.NET = netConfig.net
 }
@@ -183,6 +199,7 @@ async function train (numGames) {
     let tetrisGame = new TetrisGame(3, true)
     allMoveNodes.push(simulator.playOneEpisode(tetrisGame, netConfig))
     gamePoints.push(tetrisGame.getScore())
+    console.log(allMoveNodes)
     chartData.push({
       totalPoints: tetrisGame.getScore(),
       firstMoveNetValue: netConfig.net.run(_.last(allMoveNodes)[0].boardVector)[0],

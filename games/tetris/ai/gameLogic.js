@@ -2,20 +2,12 @@ import _ from 'lodash'
 
 import constants from 'games/tetris/ai/constants'
 
-const BOARD_VECTOR_MAX_HEIGHT_INDEX = 4
+const BOARD_VECTOR_MAX_HEIGHT_INDEX = 20
 
 function pushFullRowsDown (board, occupiedRows) {
-  let tempGameBoard = []
+  let tempGameBoard = _.cloneDeep(board)
   let sortedOccupiedRows = _.clone(occupiedRows)
   sortedOccupiedRows.sort()
-
-  for (let column = 0; column < _.size(board); column++) {
-    tempGameBoard[column] = []
-
-    for (let occupiedRowIndex = 0; occupiedRowIndex < BOARD_VECTOR_MAX_HEIGHT_INDEX; occupiedRowIndex++) {
-      tempGameBoard[column].push(board[column][occupiedRows[occupiedRowIndex]] ? 1 : 0)
-    }
-  }
 
   function boardHasFullRows () {
     // we are just working with 4 rows
@@ -78,17 +70,9 @@ function pushFullRowsDown (board, occupiedRows) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-function addRowCoord (occupiedRows) {
-  if ((_.max(occupiedRows) + 1) <= 19) {
-    occupiedRows.push(_.max(occupiedRows) + 1)
-  } else {
-    occupiedRows.push(_.min(occupiedRows) - 1)
-  }
-}
-
 function getMoveValue (fullRowCount, minimalRowIndex) {
   if (minimalRowIndex < 4) {
-    return -1000
+    return 0
   }
   return fullRowCount * 0.1
 }
@@ -96,17 +80,29 @@ function getMoveValue (fullRowCount, minimalRowIndex) {
 /*
   From lowest Y coordinate create 4 rows so we can create a board vector later
 */
-function populateLowestFourYCoordsFromOccupiedPositions (occupiedPositions) {
-  let occupiedRows = _(occupiedPositions).map('y').union().value()
-  const numYCoords = _.size(occupiedRows)
 
-  if (numYCoords !== 4) {
-    for (let i = 0; i < (4 - numYCoords); i++) {
-      addRowCoord(occupiedRows)
+function getFirstRowIndex (board) {
+  for (let row = 0; row < 20; row++) {
+    for (let column = 0; column < 10; column++) {
+      if (board[column][row]) {
+        return row
+      }
     }
   }
 
-  return _.sortBy(occupiedRows, x => x)
+  return 20
+}
+
+function populateLowestFourYCoordsFromOccupiedPositions (board) {
+  const firstRowIndex = getFirstRowIndex(board)
+  let occupiedRows = []
+
+  if (firstRowIndex > 16) {
+    occupiedRows = [16, 17, 18, 19]
+  } else {
+    occupiedRows = [firstRowIndex, firstRowIndex + 1, firstRowIndex + 2, firstRowIndex + 3]
+  }
+  return occupiedRows
 }
 
 /*

@@ -1,10 +1,11 @@
 import _ from 'lodash'
 
 import constants from 'games/tetris/ai/constants'
-// import gameLogic from 'games/tetris/ai/gameLogic'
+import gameLogic from 'games/tetris/ai/gameLogic'
 
-function getBoardVector (board, occupiedRows) {
+function getBoardVector (board) {
   const boardVector = []
+  const occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
 
   for (let i = 0; i < constants.ai.ROW_COUNT; i++) {
     for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
@@ -35,8 +36,17 @@ const TreeNode = function (parentNode, currentBlock) {
   }
 
   this.setBoardVector = function (board, occupiedRows) {
-    // const cleanedBoard = gameLogic.pushFullRowsDown(board, occupiedRows)
-    this.boardVector = getBoardVector(board, occupiedRows)
+    const cleanedBoard = gameLogic.pushFullRowsDown(board, occupiedRows)
+
+    // console.log(_.cloneDeep(cleanedBoard))
+    // console.log(gameLogic.populateLowestFourYCoordsFromOccupiedPositions(cleanedBoard))
+    // console.log(getBoardVector(cleanedBoard))
+
+    // if (this.reward) {
+    //   throw 'EVO GA'
+    // }
+
+    this.boardVector = getBoardVector(cleanedBoard)
   }
 }
 
