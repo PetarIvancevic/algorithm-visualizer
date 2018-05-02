@@ -1,8 +1,10 @@
 import _size from 'lodash/size'
-import _keys from 'lodash/keys'
-import _random from 'lodash/random'
+// import _keys from 'lodash/keys'
+// import _random from 'lodash/random'
 import gameBlocks from './components'
-import {games} from 'constants'
+// import {games} from 'constants'
+
+import fixed500Moves from 'games/tetris/ai/theFixed500Moves'
 
 const Game = function (difficulty, AI = false) {
   let gameBoard = new Array(10)
@@ -11,7 +13,10 @@ const Game = function (difficulty, AI = false) {
   let frame = 1
   let currentBlock, nextBlockType, nextBlock
 
-  const possibleBlockTypes = _keys(games.tetris.blockTypes)
+  const MAX_NUM_MOVES = 500
+  let MOVE_NUM = 0
+
+  // const possibleBlockTypes = _keys(games.tetris.blockTypes)
 
   const advanceCurrentBlock = function () {
     if (frame % difficulty === 0) {
@@ -34,7 +39,17 @@ const Game = function (difficulty, AI = false) {
     advanceCurrentBlock()
   }
 
+  this.advanceTo500Moves = function () {
+    MOVE_NUM++
+
+    if (MOVE_NUM >= MAX_NUM_MOVES) {
+      gameOver = true
+    }
+  }
+
   this.AIAdvanceGame = function (bestMoveBlock) {
+    this.advanceTo500Moves()
+
     if (gameOver) {
       return
     }
@@ -43,7 +58,7 @@ const Game = function (difficulty, AI = false) {
 
     fixateBlock(currentBlock.type, currentBlock.occupiedPositions)
     setCurrentBlock()
-    setupNextBlock()
+    setupNextBlock(MOVE_NUM + 1)
     calculatePointsAndPushRowsDown()
   }
 
@@ -125,12 +140,14 @@ const Game = function (difficulty, AI = false) {
     return true
   }
 
-  const getRandomBlockType = function () {
-    return possibleBlockTypes[_random(0, _size(possibleBlockTypes) - 1)]
+  // TODO update to return normal random block generation
+  const getRandomBlockType = function (nextBlockNum) {
+    return fixed500Moves[nextBlockNum]
+    // return possibleBlockTypes[_random(0, _size(possibleBlockTypes) - 1)]
   }
 
-  const setupNextBlock = function () {
-    nextBlockType = getRandomBlockType()
+  const setupNextBlock = function (nextBlockNum) {
+    nextBlockType = getRandomBlockType(nextBlockNum)
 
     if (AI) {
       nextBlock = new gameBlocks[nextBlockType](isRotationPossible)
@@ -220,9 +237,9 @@ const Game = function (difficulty, AI = false) {
     score = 0
     createGameBoard()
     nextBlockType = getRandomBlockType()
-    setupNextBlock()
+    setupNextBlock(MOVE_NUM)
     setCurrentBlock()
-    setupNextBlock()
+    setupNextBlock(MOVE_NUM + 1)
 
     if (!AI) {
       document.body.addEventListener('keypress', registerEventListeners)
