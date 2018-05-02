@@ -57,13 +57,14 @@ function getParentNode (parentMove, allMoveNodes) {
 function isFivePercentChance () {
   // generate random number
   // the chance of that number being 7 in this case is 5%
-  const isIt = _.random(19) === 7
+  return false
+  // const isIt = _.random(19) === 7
 
-  if (isIt) {
-    console.log('5% PERCENT CHANCE MOVE!')
-  }
+  // if (isIt) {
+  //   console.log('5% PERCENT CHANCE MOVE!')
+  // }
 
-  return isIt
+  // return isIt
 }
 
 function generateAllMoveNodes (tetrisGame) {
@@ -106,6 +107,9 @@ function getBestMoveNode (tetrisGame, netConfig) {
   // add random function
   // WATCH OUT FOR BOARD VECTOR GENERATION!
 
+  // console.log(allMoveNodes)
+  // console.log(finalMoves)
+
   _.each(finalMoves, function (moveNode, index) {
     let board = tetrisGame.getBoard()
 
@@ -142,6 +146,15 @@ function getBestMoveNode (tetrisGame, netConfig) {
     return finalMoves[randomIndex]
   }
 
+  // console.log(`
+  //   BEST MOVE INDEX: ${bestMoveIndex}
+  //   NAGRADA: ${finalMoves[bestMoveIndex].reward}
+  // `)
+  // console.log(finalMoves[bestMoveIndex])
+  // console.log(finalMoves)
+
+  // console.log('najbolji potez', finalMoves[bestMoveIndex], bestMoveIndex)
+
   return finalMoves[bestMoveIndex]
 }
 
@@ -157,6 +170,7 @@ function playOneEpisode (tetrisGame, netConfig) {
     }
 
     allBestMoveNodes.push(bestMoveNode)
+    // console.log(gameMoves, bestMoveNode.block)
     tetrisGame.AIAdvanceGame(bestMoveNode.block)
     gameMoves++
   }

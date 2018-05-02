@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 import constants from 'games/tetris/ai/constants'
-import gameLogic from 'games/tetris/ai/gameLogic'
+// import gameLogic from 'games/tetris/ai/gameLogic'
 
 function getBoardVector (board, occupiedRows) {
   const boardVector = []
@@ -31,12 +31,12 @@ const TreeNode = function (parentNode, currentBlock) {
   }
 
   this.setReward = function (reward) {
-    this.reward = (reward < 0) ? 0 : reward
+    this.reward = reward
   }
 
   this.setBoardVector = function (board, occupiedRows) {
-    const cleanedBoard = gameLogic.pushFullRowsDown(board)
-    this.boardVector = getBoardVector(cleanedBoard, occupiedRows)
+    // const cleanedBoard = gameLogic.pushFullRowsDown(board, occupiedRows)
+    this.boardVector = getBoardVector(board, occupiedRows)
   }
 }
 

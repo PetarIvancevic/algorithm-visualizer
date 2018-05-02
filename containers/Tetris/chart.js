@@ -41,8 +41,6 @@ class ChartComponent extends Component {
   }
 
   render () {
-    const numResults = _.size(this.props.data)
-
     return (
       <section>
 
