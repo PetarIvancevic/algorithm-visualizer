@@ -101,7 +101,7 @@ function updateNetwork (gameAllMoves) {
       finalReward += moves[i].reward
     }
 
-    console.log(moves[i])
+    // console.log(moves[i])
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
@@ -144,7 +144,7 @@ let netConfig = {
 
 function create (learningRate) {
   function createHiddenLayers () {
-    return [400, 200]
+    return [200]
   }
 
   function constructNetworkInitialData (input, output) {
@@ -199,7 +199,6 @@ async function train (numGames) {
     let tetrisGame = new TetrisGame(3, true)
     allMoveNodes.push(simulator.playOneEpisode(tetrisGame, netConfig))
     gamePoints.push(tetrisGame.getScore())
-    console.log(allMoveNodes)
     chartData.push({
       totalPoints: tetrisGame.getScore(),
       firstMoveNetValue: netConfig.net.run(_.last(allMoveNodes)[0].boardVector)[0],

@@ -37,15 +37,6 @@ const TreeNode = function (parentNode, currentBlock) {
 
   this.setBoardVector = function (board, occupiedRows) {
     const cleanedBoard = gameLogic.pushFullRowsDown(board, occupiedRows)
-
-    // console.log(_.cloneDeep(cleanedBoard))
-    // console.log(gameLogic.populateLowestFourYCoordsFromOccupiedPositions(cleanedBoard))
-    // console.log(getBoardVector(cleanedBoard))
-
-    // if (this.reward) {
-    //   throw 'EVO GA'
-    // }
-
     this.boardVector = getBoardVector(cleanedBoard)
   }
 }

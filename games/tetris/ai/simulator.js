@@ -120,7 +120,7 @@ function getBestMoveNode (tetrisGame, netConfig) {
 
     moveNode.setReward(reward)
     moveNode.setBoardVector(board, occupiedRows)
-    moveNode.board = _.cloneDeep(board)
+    // moveNode.board = _.cloneDeep(board)
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 

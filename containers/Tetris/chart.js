@@ -17,8 +17,10 @@ class ChartComponent extends Component {
       labels: _.map(this.props.data, 'numMoves'),
       datasets: [{
         label: 'Training results (Number of moves / NN first move value)',
-        showLine: false,
+        showLine: true,
         pointBackgroundColor: '#026696',
+        backgroundColor: '#026696',
+        borderColor: '#026696',
         fill: false,
         data: formattedData
       }]
@@ -31,9 +33,11 @@ class ChartComponent extends Component {
     return {
       labels: _.map(this.props.data, (data, index) => index),
       datasets: [{
-        label: 'Training results (Number of moves / Total Game Points)',
-        showLine: false,
+        label: 'Training results (Game number / Total Number of moves)',
+        showLine: true,
         pointBackgroundColor: '#026696',
+        backgroundColor: '#026696',
+        borderColor: '#026696',
         fill: false,
         data: formattedData
       }]
