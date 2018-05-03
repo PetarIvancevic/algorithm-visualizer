@@ -48,11 +48,11 @@ function stripDuplicateMoves (newBlockMoves, allBlockMoveNodes) {
   return uniqueBlockMoves
 }
 
-function getParentNode (parentMove, allMoveNodes) {
-  return _.find(allMoveNodes, function (moveNode) {
-    return _.isEqual(moveNode.block.occupiedPositions, parentMove.occupiedPositions)
-  })
-}
+// function getParentNode (parentMove, allMoveNodes) {
+//   return _.find(allMoveNodes, function (moveNode) {
+//     return _.isEqual(moveNode.block.occupiedPositions, parentMove.occupiedPositions)
+//   })
+// }
 
 function isFivePercentChance () {
   // generate random number
@@ -75,11 +75,9 @@ function generateAllMoveNodes (tetrisGame) {
     let parentMove = blockPositions.pop()
     let newMoves = generateMoves(parentMove, tetrisGame.getCheckCollisionFn())
     let newUniqueMoves = stripDuplicateMoves(newMoves, allMoveNodes)
-    let parentNode = getParentNode(parentMove, allMoveNodes)
 
     let uniqueMoveNodes = _.map(newUniqueMoves, function (uniqueMove) {
-      let newChild = new TreeNode(parentNode, uniqueMove)
-      parentNode.addChild(newChild)
+      let newChild = new TreeNode(null, uniqueMove)
       return newChild
     })
 
@@ -101,9 +99,8 @@ function getFinalMoves (moveNodes) {
 }
 
 function getBestMoveNode (tetrisGame, netConfig) {
-  const allMoveNodes = generateAllMoveNodes(tetrisGame)
+  const finalMoves = getFinalMoves(generateAllMoveNodes(tetrisGame))
   let bestMoves = {moveValue: -100000, sameValueMoveIndexes: []}
-  const finalMoves = getFinalMoves(allMoveNodes)
   // add random function
   // WATCH OUT FOR BOARD VECTOR GENERATION!
 
@@ -172,6 +169,7 @@ function playOneEpisode (tetrisGame, netConfig) {
     tetrisGame.AIAdvanceGame(bestMoveNode.block)
     gameMoves++
   }
+
   return allBestMoveNodes
 }
 

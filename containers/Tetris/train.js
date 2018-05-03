@@ -12,13 +12,15 @@ export default class TetrisAITrain extends Component {
     this.createNetwork = this.createNetwork.bind(this)
     this.refLearningRate = this.refLearningRate.bind(this)
     this.refNumGames = this.refNumGames.bind(this)
+    this.refOldNetwork = this.refOldNetwork.bind(this)
     this.trainNetwork = this.trainNetwork.bind(this)
 
     this.state = {data: []}
   }
 
   createNetwork () {
-    AI.create(this.learningRate.value)
+    AI.create(this.learningRate.value, this.oldNetworkWeights.value)
+    this.oldNetworkWeights.value = null
     this.setState({data: []})
   }
 
@@ -30,13 +32,17 @@ export default class TetrisAITrain extends Component {
     this.numGames = numGames
   }
 
+  refOldNetwork (oldNetworkWeights) {
+    this.oldNetworkWeights = oldNetworkWeights
+  }
+
   async trainNetwork () {
     const trainingData = await AI.train(this.numGames.value)
     this.setState({data: _.concat(this.state.data, trainingData)})
   }
 
   render () {
-    const {refNumGames, refLearningRate} = this
+    const {refNumGames, refLearningRate, refOldNetwork} = this
 
     return (
       <article className='top-holder'>
@@ -49,6 +55,14 @@ export default class TetrisAITrain extends Component {
               step: 0.1,
               placeholder: 0.3,
               ref: refLearningRate
+            }}
+          />
+          <Field
+            label='Old network JSON:'
+            inputProperties={{
+              type: 'textarea',
+              placeholder: 'Paste the old network JSON here...',
+              ref: refOldNetwork
             }}
           />
           <button onClick={this.createNetwork}>CREATE</button>

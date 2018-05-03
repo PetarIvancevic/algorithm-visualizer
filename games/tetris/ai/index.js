@@ -142,7 +142,7 @@ let netConfig = {
   }
 }
 
-function create (learningRate) {
+function create (learningRate, oldNetworkWeights) {
   function createHiddenLayers () {
     return [400, 100]
   }
@@ -165,16 +165,22 @@ function create (learningRate) {
     return initialData
   }
 
-  netConfig = _.assign({}, netConfig, {
-    net: new brain.NeuralNetwork({
-      learningRate: _.toNumber(learningRate || netConfig.learningRate),
-      activation: 'sigmoid',
-      hiddenLayers: createHiddenLayers()
+  if (oldNetworkWeights) {
+    netConfig.net = new brain.NeuralNetwork({})
+    netConfig.net.fromJSON(JSON.parse(oldNetworkWeights))
+  } else {
+    netConfig = _.assign({}, netConfig, {
+      net: new brain.NeuralNetwork({
+        learningRate: _.toNumber(learningRate || netConfig.learningRate),
+        activation: 'sigmoid',
+        hiddenLayers: createHiddenLayers()
+      })
     })
-  })
 
-  // initial train
-  netConfig.net.train(constructNetworkInitialData(), {iterations: 1})
+    // initial train
+    netConfig.net.train(constructNetworkInitialData(), {iterations: 1})
+  }
+
   // expose the net to the window
   window.NET = netConfig.net
 }
@@ -187,7 +193,6 @@ async function train (numGames) {
 
   const NUM_GAMES_TO_PLAY = numGames || aiTrackers.NUM_GAMES_TO_PLAY
   const gamePoints = []
-  let allMoveNodes = []
   const chartData = []
 
   aiTrackers.TOTAL_SET_NUM_GAMES = NUM_GAMES_TO_PLAY
@@ -197,16 +202,15 @@ async function train (numGames) {
     console.log('Playing...')
     aiTrackers.CURRENT_GAME++
     let tetrisGame = new TetrisGame(3, true)
-    allMoveNodes.push(simulator.playOneEpisode(tetrisGame, netConfig))
+    let gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig)
     gamePoints.push(tetrisGame.getScore())
     chartData.push({
       totalPoints: tetrisGame.getScore(),
-      firstMoveNetValue: netConfig.net.run(_.last(allMoveNodes)[0].boardVector)[0],
-      numMoves: _.size(_.last(allMoveNodes))
+      firstMoveNetValue: netConfig.net.run(getNullVector())[0],
+      numMoves: _.size(gameMoveNodes)
     })
-    updateNetwork(_.last(allMoveNodes))
-    chartData[i].firstMoveNetValueAfterTraining = netConfig.net.run(_.last(allMoveNodes)[0].boardVector)[0]
-    allMoveNodes = []
+    updateNetwork(gameMoveNodes)
+    chartData[i].firstMoveNetValueAfterTraining = netConfig.net.run(getNullVector())[0]
   }
 
   // await writeMovesToFile(allMoveNodes)
