@@ -1,6 +1,6 @@
 const ai = {
   COLUMN_COUNT: 10,
-  ROW_COUNT: 4,
+  ROW_COUNT: 6,
   MAX_GAME_MOVES: 500,
   NUM_GAMES_TO_PLAY: 10
 }

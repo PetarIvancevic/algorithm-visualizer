@@ -79,7 +79,7 @@ function sigmoidNormalize (result) {
 function getNullVector () {
   let arr = []
 
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
     arr.push(0)
   }
 
@@ -105,7 +105,7 @@ function updateNetwork (gameAllMoves) {
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [sigmoidNormalize(moves[i].reward + 0.7 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
+      netOutput: [sigmoidNormalize(moves[i].reward + 0.95 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
     })
   }
 
@@ -144,7 +144,7 @@ let netConfig = {
 
 function create (learningRate) {
   function createHiddenLayers () {
-    return [200]
+    return [400, 100]
   }
 
   function constructNetworkInitialData (input, output) {

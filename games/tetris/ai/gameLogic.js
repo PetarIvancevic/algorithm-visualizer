@@ -74,7 +74,7 @@ function getMoveValue (fullRowCount, minimalRowIndex) {
   if (minimalRowIndex < 4) {
     return 0
   }
-  return fullRowCount * 0.1
+  return fullRowCount * 0.3
 }
 
 /*
