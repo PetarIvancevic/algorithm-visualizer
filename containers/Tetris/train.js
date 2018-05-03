@@ -60,7 +60,7 @@ export default class TetrisAITrain extends Component {
   }
 
   refDrawSpeed (drawSpeed) {
-    this.drawSpeed = drawSpeed
+    this.drawSpeed = drawSpeed || 30
   }
 
   async trainNetwork () {

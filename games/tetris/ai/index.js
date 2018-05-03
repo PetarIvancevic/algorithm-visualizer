@@ -210,7 +210,6 @@ async function train (currentGame, totalGames, numGames = 1) {
       numMoves: _.size(gameMoveNodes)
     })
     updateNetwork(gameMoveNodes)
-    console.log(gameMoveNodes)
     aiSimulatorMoves = _.map(gameMoveNodes, 'block')
     chartData[i].firstMoveNetValueAfterTraining = netConfig.net.run(getNullVector())[0]
   }

@@ -6,7 +6,7 @@ import gameBlocks from './components'
 
 import fixed500Moves from 'games/tetris/ai/theFixed500Moves'
 
-const Game = function (difficulty, AI = false) {
+const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
   let gameBoard = new Array(10)
   let gameOver = false
   let score = 0

@@ -67,7 +67,7 @@ class DrawComponent extends Component {
   playAIGame (currentMove = 0, aiSimulatorMoves) {
     const {playAIGame} = this
 
-    if (currentMove >= _size(aiSimulatorMoves)) {
+    if (currentMove > _size(aiSimulatorMoves) - 1) {
       return this.props.finishGame()
     }
 
@@ -215,7 +215,9 @@ class DrawComponent extends Component {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     ctx.fillStyle = tetrisCanvasAttributes.backgroundColor
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    this.game.advanceGame()
+    if (!this.props.AIPlayer) {
+      this.game.advanceGame()
+    }
     this.drawGameElements()
     this.drawGrid()
     this.drawBorderForGameArea()
