@@ -3,6 +3,7 @@ import {h, Component} from 'preact' //eslint-disable-line
 
 import AI from 'games/tetris/ai'
 import ChartComponent from 'containers/Tetris/chart'
+import DrawComponent from 'containers/Tetris/drawComponent'
 import Field from 'components/Field'
 import TetrisHeader from 'containers/Tetris/header'
 
@@ -10,18 +11,40 @@ export default class TetrisAITrain extends Component {
   constructor () {
     super()
     this.createNetwork = this.createNetwork.bind(this)
+    this.endAISimulation = this.endAISimulation.bind(this)
     this.refLearningRate = this.refLearningRate.bind(this)
     this.refNumGames = this.refNumGames.bind(this)
     this.refOldNetwork = this.refOldNetwork.bind(this)
+    this.refDrawSpeed = this.refDrawSpeed.bind(this)
     this.trainNetwork = this.trainNetwork.bind(this)
 
-    this.state = {data: []}
+    this.state = {
+      aiSimulatorMoves: [],
+      currentGame: 0,
+      data: [],
+      simulating: false
+    }
   }
 
   createNetwork () {
     AI.create(this.learningRate.value, this.oldNetworkWeights.value)
     this.oldNetworkWeights.value = null
-    this.setState({data: []})
+    this.setState({
+      aiSimulatorMoves: [],
+      currentGame: 0,
+      data: [],
+      simulating: false
+    })
+  }
+
+  endAISimulation () {
+    const {currentGame} = this.state
+
+    this.setState({
+      currentGame: currentGame + 1,
+      simulating: false
+    })
+    this.trainNetwork(currentGame + 1)
   }
 
   refLearningRate (learningRate) {
@@ -36,13 +59,24 @@ export default class TetrisAITrain extends Component {
     this.oldNetworkWeights = oldNetworkWeights
   }
 
+  refDrawSpeed (drawSpeed) {
+    this.drawSpeed = drawSpeed
+  }
+
   async trainNetwork () {
-    const trainingData = await AI.train(this.numGames.value)
-    this.setState({data: _.concat(this.state.data, trainingData)})
+    if (this.numGames.value <= this.state.currentGame) return
+
+    let trainingData = await AI.train(this.state.currentGame + 1, this.numGames.value)
+    await this.setState({
+      aiSimulatorMoves: trainingData.aiSimulatorMoves,
+      currentGame: 0,
+      data: _.concat(this.state.data, trainingData.chartData),
+      simulating: true
+    })
   }
 
   render () {
-    const {refNumGames, refLearningRate, refOldNetwork} = this
+    const {refDrawSpeed, refNumGames, refLearningRate, refOldNetwork} = this
 
     return (
       <article className='top-holder'>
@@ -77,8 +111,24 @@ export default class TetrisAITrain extends Component {
               placeholder: 10
             }}
           />
+          <Field
+            label='Draw speed:'
+            inputProperties={{
+              type: 'number',
+              step: 1,
+              ref: refDrawSpeed,
+              placeholder: 30
+            }}
+          />
           <button onClick={this.trainNetwork}>TRAIN</button>
         </section>
+        <DrawComponent
+          AIPlayer
+          aiSimulatorMoves={this.state.aiSimulatorMoves}
+          finishGame={this.endAISimulation}
+          simulating={this.state.simulating}
+          drawSpeed={this.drawSpeed && this.drawSpeed.value}
+        />
         <ChartComponent data={this.state.data} />
       </article>
     )

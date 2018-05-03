@@ -1,5 +1,6 @@
 import _size from 'lodash/size'
 import {Component, h} from 'preact' //eslint-disable-line
+import PropTypes from 'prop-types'
 
 import Canvas from 'components/Canvas'
 import Modal from 'components/Modal'
@@ -24,7 +25,7 @@ const nextElementAreaConstants = {
   yEnd: 225
 }
 
-export default class DrawComponent extends Component {
+class DrawComponent extends Component {
   constructor (props) {
     super(props)
 
@@ -40,6 +41,7 @@ export default class DrawComponent extends Component {
     this.reDraw = this.reDraw.bind(this)
     this.startNewGame = this.startNewGame.bind(this)
     this.closeModal = this.closeModal.bind(this)
+    this.playAIGame = this.playAIGame.bind(this)
     this.openModal = this.openModal.bind(this)
     this.state = {score: 0, showModal: false}
   }
@@ -53,6 +55,26 @@ export default class DrawComponent extends Component {
   endGame () {
     this.clearRedrawInterval()
     this.openModal()
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.AIPlayer && nextProps.simulating && _size(nextProps.aiSimulatorMoves)) {
+      this.game = new TetrisGame(3, nextProps.AIPlayer)
+      this.playAIGame(0, nextProps.aiSimulatorMoves)
+    }
+  }
+
+  playAIGame (currentMove = 0, aiSimulatorMoves) {
+    const {playAIGame} = this
+
+    if (currentMove >= _size(aiSimulatorMoves)) {
+      return this.props.finishGame()
+    }
+
+    this.game.AIAdvanceGame(aiSimulatorMoves[currentMove])
+    this.reDraw()
+
+    setTimeout(function () { playAIGame(currentMove + 1, aiSimulatorMoves) }, this.props.drawSpeed)
   }
 
   startNewGame (difficulty) {
@@ -73,6 +95,7 @@ export default class DrawComponent extends Component {
     this.clearRedrawInterval()
 
     this.game = new TetrisGame(frameRate)
+
     this.reDrawInterval = setInterval(this.reDraw, 60)
   }
 
@@ -252,24 +275,26 @@ export default class DrawComponent extends Component {
           </button>
         </div>
 
-        <div>
-          <button onClick={() => this.startNewGame('easy')}>
-            Easy
-          </button>
-          <button onClick={() => this.startNewGame('medium')}>
-            Medium
-          </button>
-          <button onClick={() => this.startNewGame('hard')}>
-            Hard
-          </button>
-        </div>
+        {!this.props.AIPlayer &&
+          <div>
+            <button onClick={() => this.startNewGame('easy')}>
+              Easy
+            </button>
+            <button onClick={() => this.startNewGame('medium')}>
+              Medium
+            </button>
+            <button onClick={() => this.startNewGame('hard')}>
+              Hard
+            </button>
+          </div>
+        }
         <Canvas
           customClass='tetris-canvas'
           style={{'background': tetrisCanvasAttributes.backgroundColor}}
           draw={this.draw}
           attributes={tetrisCanvasAttributes}
         />
-        {this.state.showModal && <Modal closeFn={this.closeModal}>
+        {!this.props.AIPlayer && this.state.showModal && <Modal closeFn={this.closeModal}>
           <section>
             <h2>Game Over</h2>
             <p>Thank you for playing!</p>
@@ -280,3 +305,13 @@ export default class DrawComponent extends Component {
     )
   }
 }
+
+DrawComponent.PropTypes = {
+  AIPlayer: PropTypes.bool,
+  drawSpeed: PropTypes.number,
+  aiSimulatorMoves: PropTypes.object,
+  finishGame: PropTypes.func,
+  simulating: PropTypes.bool
+}
+
+export default DrawComponent

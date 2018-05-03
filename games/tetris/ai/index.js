@@ -119,7 +119,6 @@ function updateNetwork (gameAllMoves) {
   })
 
   console.log(`
-    GAME: ${aiTrackers.CURRENT_GAME} / ${aiTrackers.TOTAL_SET_NUM_GAMES}
     OLD: ${oldRes}
     NEW: ${netConfig.net.run(getNullVector())[0]}
     NUMBER OF MOVES: ${numMoves}
@@ -185,7 +184,7 @@ function create (learningRate, oldNetworkWeights) {
   window.NET = netConfig.net
 }
 
-async function train (numGames) {
+async function train (currentGame, totalGames, numGames = 1) {
   if (!netConfig.net) {
     window.alert('The network is not created! You probably forgot to call create!')
     return
@@ -194,12 +193,13 @@ async function train (numGames) {
   const NUM_GAMES_TO_PLAY = numGames || aiTrackers.NUM_GAMES_TO_PLAY
   const gamePoints = []
   const chartData = []
+  let aiSimulatorMoves = []
 
   aiTrackers.TOTAL_SET_NUM_GAMES = NUM_GAMES_TO_PLAY
   aiTrackers.CURRENT_GAME = 0
 
   for (let i = 0; i < NUM_GAMES_TO_PLAY; i++) {
-    console.log('Playing...')
+    console.log(`Playing... GAME: ${currentGame} / ${totalGames}`)
     aiTrackers.CURRENT_GAME++
     let tetrisGame = new TetrisGame(3, true)
     let gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig)
@@ -210,6 +210,8 @@ async function train (numGames) {
       numMoves: _.size(gameMoveNodes)
     })
     updateNetwork(gameMoveNodes)
+    console.log(gameMoveNodes)
+    aiSimulatorMoves = _.map(gameMoveNodes, 'block')
     chartData[i].firstMoveNetValueAfterTraining = netConfig.net.run(getNullVector())[0]
   }
 
@@ -223,7 +225,7 @@ async function train (numGames) {
     `)
   })
 
-  return chartData
+  return {chartData, aiSimulatorMoves}
 }
 
 export default {
