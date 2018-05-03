@@ -190,7 +190,7 @@ async function train (currentGame, totalGames, numGames = 1) {
     return
   }
 
-  const NUM_GAMES_TO_PLAY = numGames || aiTrackers.NUM_GAMES_TO_PLAY
+  const NUM_GAMES_TO_PLAY = 1 // numGames || aiTrackers.NUM_GAMES_TO_PLAY
   const gamePoints = []
   const chartData = []
   let aiSimulatorMoves = []

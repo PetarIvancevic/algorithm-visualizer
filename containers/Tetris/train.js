@@ -63,13 +63,15 @@ export default class TetrisAITrain extends Component {
     this.drawSpeed = drawSpeed || 30
   }
 
-  async trainNetwork () {
-    if (this.numGames.value <= this.state.currentGame) return
+  async trainNetwork (currentGame = 0) {
+    const totalNumGames = this.numGames.value || 10
 
-    let trainingData = await AI.train(this.state.currentGame + 1, this.numGames.value)
+    if (totalNumGames <= currentGame) return
+
+    let trainingData = await AI.train(currentGame + 1, totalNumGames)
     await this.setState({
       aiSimulatorMoves: trainingData.aiSimulatorMoves,
-      currentGame: 0,
+      currentGame,
       data: _.concat(this.state.data, trainingData.chartData),
       simulating: true
     })
@@ -120,7 +122,7 @@ export default class TetrisAITrain extends Component {
               placeholder: 30
             }}
           />
-          <button onClick={this.trainNetwork}>TRAIN</button>
+          <button onClick={() => this.trainNetwork(0)}>TRAIN</button>
         </section>
         <DrawComponent
           AIPlayer
