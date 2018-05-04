@@ -7,7 +7,7 @@ function getBoardVector (board) {
   const boardVector = []
   const occupiedRows = gameLogic.populateLowestFourYCoordsFromOccupiedPositions(board)
 
-  for (let i = 0; i < constants.ai.ROW_COUNT; i++) {
+  for (let i = 0; i < constants.ai.VECTOR_ROW_COUNT; i++) {
     for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
       boardVector.push(board[column][occupiedRows[i]] ? 1 : 0)
     }

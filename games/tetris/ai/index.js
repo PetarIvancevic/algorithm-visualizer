@@ -79,7 +79,7 @@ function sigmoidNormalize (result) {
 function getNullVector () {
   let arr = []
 
-  for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
+  for (let i = 0; i < constants.ai.VECTOR_ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
     arr.push(0)
   }
 
@@ -154,7 +154,7 @@ function create (learningRate, oldNetworkWeights) {
       input: [],
       output: [1]
     }]
-    const vectorSize = constants.ai.COLUMN_COUNT * constants.ai.ROW_COUNT
+    const vectorSize = constants.ai.COLUMN_COUNT * constants.ai.VECTOR_ROW_COUNT
 
     for (let i = 0; i < vectorSize; i++) {
       initialData[0].input.push(0)
