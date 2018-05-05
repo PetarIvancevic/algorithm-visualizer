@@ -57,14 +57,14 @@ function stripDuplicateMoves (newBlockMoves, allBlockMoveNodes) {
 function isFivePercentChance () {
   // generate random number
   // the chance of that number being 7 in this case is 5%
-  return false
-  // const isIt = _.random(19) === 7
+  // return false
+  const isIt = _.random(19) === 7
 
-  // if (isIt) {
-  //   console.log('5% PERCENT CHANCE MOVE!')
-  // }
+  if (isIt) {
+    console.log('5% PERCENT CHANCE MOVE!')
+  }
 
-  // return isIt
+  return isIt
 }
 
 function generateAllMoveNodes (tetrisGame) {
@@ -121,7 +121,8 @@ function getBestMoveNode (tetrisGame, netConfig) {
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 
-    let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
+    // let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
+    let moveValue = netConfig.net.run(moveNode.boardVector)[0]
 
     if (moveValue === bestMoves.moveValue) {
       bestMoves.sameValueMoveIndexes.push(index)

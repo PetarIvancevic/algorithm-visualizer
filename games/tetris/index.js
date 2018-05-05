@@ -18,14 +18,15 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
 
   // const possibleBlockTypes = _keys(games.tetris.blockTypes)
 
-  const advanceCurrentBlock = function () {
+  this.advanceCurrentBlock = function () {
     if (frame % difficulty === 0) {
       currentBlock.advance(checkCollision)
 
       if (!currentBlock.isMovable) {
+        this.advanceTo500Moves()
         fixateBlock(currentBlock.type, currentBlock.occupiedPositions)
         setCurrentBlock()
-        setupNextBlock()
+        setupNextBlock(MOVE_NUM + 1)
         calculatePointsAndPushRowsDown()
       }
     }
@@ -36,7 +37,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     if (gameOver) {
       return
     }
-    advanceCurrentBlock()
+    this.advanceCurrentBlock()
   }
 
   this.advanceTo500Moves = function () {

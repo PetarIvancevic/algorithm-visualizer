@@ -76,6 +76,10 @@ function sigmoidNormalize (result) {
 //   return result > 10 ? 10 : result
 // }
 
+function moveNormalize (moveNum) {
+  return (moveNum / constants.ai.MAX_GAME_MOVES) * 0.5
+}
+
 function getNullVector () {
   let arr = []
 
@@ -105,7 +109,7 @@ function updateNetwork (gameAllMoves) {
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [sigmoidNormalize(moves[i].reward + 0.95 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
+      netOutput: [sigmoidNormalize(moveNormalize(i + 1) + moves[i].reward + 0.95 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
     })
   }
 
@@ -149,7 +153,7 @@ function create (learningRate, oldNetworkWeights) {
   function constructNetworkInitialData (input, output) {
     const initialData = [{
       input: [],
-      output: [1]
+      output: [0]
     }, {
       input: [],
       output: [1]
@@ -204,12 +208,14 @@ async function train (currentGame, totalGames, numGames = 1) {
     let tetrisGame = new TetrisGame(3, true)
     let gameMoveNodes = simulator.playOneEpisode(tetrisGame, netConfig)
     gamePoints.push(tetrisGame.getScore())
+
     chartData.push({
       totalPoints: tetrisGame.getScore(),
       firstMoveNetValue: netConfig.net.run(getNullVector())[0],
       numMoves: _.size(gameMoveNodes)
     })
     updateNetwork(gameMoveNodes)
+
     aiSimulatorMoves = _.map(gameMoveNodes, 'block')
     chartData[i].firstMoveNetValueAfterTraining = netConfig.net.run(getNullVector())[0]
   }
