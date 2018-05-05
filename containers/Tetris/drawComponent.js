@@ -142,7 +142,10 @@ class DrawComponent extends Component {
       ctx.fill()
     }
 
-    this.setState({score: this.game.getScore()})
+    this.setState({
+      score: this.game.getScore(),
+      numMoves: this.game.getMoveCount()
+    })
   }
 
   drawBorderForGameArea () {
@@ -301,6 +304,7 @@ class DrawComponent extends Component {
             <h2>Game Over</h2>
             <p>Thank you for playing!</p>
             <p>Your final score is <b>{this.state.score}</b></p>
+            <p>Total number of moves: <b>{this.state.numMoves}</b></p>
           </section>
         </Modal>}
       </section>

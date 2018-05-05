@@ -63,6 +63,10 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     calculatePointsAndPushRowsDown()
   }
 
+  this.getMoveCount = function () {
+    return MOVE_NUM
+  }
+
   const calculatePointsAndPushRowsDown = function () {
     const fullRowCount = getFullRowsCount()
 
