@@ -57,7 +57,7 @@ function stripDuplicateMoves (newBlockMoves, allBlockMoveNodes) {
 function isFivePercentChance () {
   // generate random number
   // the chance of that number being 7 in this case is 5%
-  // return false
+  return false
   const isIt = _.random(19) === 7
 
   if (isIt) {
@@ -113,7 +113,7 @@ function getBestMoveNode (tetrisGame, netConfig) {
 
     let fullRowCount = gameLogic.getFullRowCount(board, occupiedRows)
     // reward is just calculating full rows or game lost
-    let reward = gameLogic.getMoveValue(fullRowCount, _.min(occupiedRows))
+    let reward = gameLogic.getMoveValue(fullRowCount, _.min(occupiedRows), board)
 
     moveNode.setReward(reward)
     moveNode.setBoardVector(board, occupiedRows)
@@ -121,8 +121,8 @@ function getBestMoveNode (tetrisGame, netConfig) {
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 
-    // let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
-    let moveValue = netConfig.net.run(moveNode.boardVector)[0]
+    let moveValue = reward + netConfig.netNormalizedOutput(moveNode.boardVector, 0.6)[0]
+    // let moveValue = netConfig.net.run(moveNode.boardVector)[0]
 
     if (moveValue === bestMoves.moveValue) {
       bestMoves.sameValueMoveIndexes.push(index)
@@ -137,7 +137,7 @@ function getBestMoveNode (tetrisGame, netConfig) {
   })
   const bestMoveIndex = bestMoves.sameValueMoveIndexes[_.random(_.size(bestMoves.sameValueMoveIndexes) - 1)]
 
-  if (isFivePercentChance()) {
+  if (_.size(finalMoves) && finalMoves[bestMoveIndex].reward < 0.1 && isFivePercentChance()) {
     const randomIndex = _.random(_.size(finalMoves) - 1)
     return finalMoves[randomIndex]
   }

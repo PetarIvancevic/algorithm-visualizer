@@ -90,6 +90,18 @@ function getNullVector () {
   return arr
 }
 
+function printBoardVector (boardVector) {
+  let row = []
+
+  for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
+    row.push(boardVector[i])
+    if ((i + 1) % 10 === 0) {
+      console.log(i, JSON.stringify(row))
+      row = []
+    }
+  }
+}
+
 function updateNetwork (gameAllMoves) {
   // const moves = stripMovesDataForNetworkUpdate(gameAllMoves)
   const moves = gameAllMoves
@@ -105,11 +117,13 @@ function updateNetwork (gameAllMoves) {
       finalReward += moves[i].reward
     }
 
-    // console.log(moves[i])
+    // let cumulativeReward = (1 + finalReward) / (1 + numMoves)
+
+    // printBoardVector(moves[i].boardVector)
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [sigmoidNormalize(moveNormalize(i + 1) + moves[i].reward + 0.95 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
+      netOutput: [moves[i].boardVector[0] + 0.85 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]]
     })
   }
 
@@ -138,23 +152,20 @@ function updateNetwork (gameAllMoves) {
 let netConfig = {
   net: null,
   learningRate: 0.3,
-  netNormalizedOutput: function (input) {
+  netNormalizedOutput: function (input, maxValue = 0.6) {
     // return this.net.run(input)
     const netResult = this.net.run(input)
-    return netResult[0] > 0.6 ? [0.6] : netResult
+    return netResult[0] > maxValue ? [maxValue] : netResult
   }
 }
 
 function create (learningRate, oldNetworkWeights) {
   function createHiddenLayers () {
-    return [400, 100]
+    return [500, 100]
   }
 
   function constructNetworkInitialData (input, output) {
     const initialData = [{
-      input: [],
-      output: [0]
-    }, {
       input: [],
       output: [1]
     }]
@@ -162,7 +173,7 @@ function create (learningRate, oldNetworkWeights) {
 
     for (let i = 0; i < vectorSize; i++) {
       initialData[0].input.push(0)
-      initialData[1].input.push(1)
+      // initialData[1].input.push(1)
     }
 
     return initialData

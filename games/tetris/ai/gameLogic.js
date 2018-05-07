@@ -70,11 +70,38 @@ function pushFullRowsDown (board, occupiedRows) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-function getMoveValue (fullRowCount, minimalRowIndex) {
+function getMoveValue (fullRowCount, minimalRowIndex, board) {
   if (minimalRowIndex < 4) {
-    return 0
+    return -0.4
   }
-  return fullRowCount * 0.1
+
+  // let moveCoefficient = 1
+
+  // for (let row = 0; row < constants.ai.ROW_COUNT; row++) {
+  //   if (row < 5) {
+  //     continue
+  //   }
+
+  //   for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
+  //     if (board[column][row]) {
+  //       moveCoefficient += (row / 20)
+  //     }
+  //   }
+  // }
+
+  // return (moveCoefficient / 150) * 0.4
+
+  let columnPopulation = 0
+
+  for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
+    let firstIndex = _.findIndex(board[column], val => val)
+    columnPopulation += firstIndex < 0 ? 0 : (20 - firstIndex)
+  }
+
+  columnPopulation = (1 / (columnPopulation + 1)) * 0.4
+
+  const moveValue = fullRowCount * 0.1 + columnPopulation // + moveCoefficient
+  return moveValue
 }
 
 /*
@@ -118,15 +145,14 @@ function populateBoardWithActualMove (board, occupiedPositions, value) {
   }
 }
 
-function getFullRowCount (board, occupiedRows) {
+function getFullRowCount (board) {
   let fullRowCount = 0
 
-  for (let i = 0; i < constants.ai.ROW_COUNT; i++) {
-    let currentRow = occupiedRows[i]
+  for (let row = 0; row < constants.ai.ROW_COUNT; row++) {
     let rowIsFull = true
 
     for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
-      if (!board[column][currentRow]) {
+      if (!board[column][row]) {
         rowIsFull = false
         break
       }
