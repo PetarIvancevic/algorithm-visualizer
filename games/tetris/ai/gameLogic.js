@@ -71,7 +71,7 @@ function pushFullRowsDown (board, occupiedRows) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 function getMoveValue (fullRowCount, minimalRowIndex, board) {
-  if (minimalRowIndex < 4) {
+  if (minimalRowIndex <= 1) {
     return -0.4
   }
 
@@ -91,16 +91,17 @@ function getMoveValue (fullRowCount, minimalRowIndex, board) {
 
   // return (moveCoefficient / 150) * 0.4
 
-  let columnPopulation = 0
+  // let columnPopulation = 0
 
-  for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
-    let firstIndex = _.findIndex(board[column], val => val)
-    columnPopulation += firstIndex < 0 ? 0 : (20 - firstIndex)
-  }
+  // for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
+  //   let firstIndex = _.findIndex(board[column], val => val)
+  //   columnPopulation += firstIndex < 0 ? 0 : (20 - firstIndex)
+  // }
 
-  columnPopulation = (1 / (columnPopulation + 1)) * 0.4
+  // return (1 / (columnPopulation + 1)) * 0.2
 
-  const moveValue = fullRowCount * 0.1 + columnPopulation // + moveCoefficient
+  const moveValue = fullRowCount * 0.1 // + columnPopulation
+
   return moveValue
 }
 

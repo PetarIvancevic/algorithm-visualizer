@@ -91,15 +91,16 @@ function getNullVector () {
 }
 
 function printBoardVector (boardVector) {
-  let row = []
+  console.log(JSON.stringify(boardVector))
+  // let row = []
 
-  for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
-    row.push(boardVector[i])
-    if ((i + 1) % 10 === 0) {
-      console.log(i, JSON.stringify(row))
-      row = []
-    }
-  }
+  // for (let i = 0; i < constants.ai.ROW_COUNT * constants.ai.COLUMN_COUNT; i++) {
+  //   row.push(boardVector[i])
+  //   if ((i + 1) % 10 === 0) {
+  //     console.log(i, JSON.stringify(row))
+  //     row = []
+  //   }
+  // }
 }
 
 function updateNetwork (gameAllMoves) {
@@ -111,8 +112,10 @@ function updateNetwork (gameAllMoves) {
   const trainingSets = []
   let finalReward = 0
 
+  const discountFactor = 0.95
+
   console.log('Training...')
-  for (let i = 0; i < numMoves - 1; i++) {
+  for (let i = numMoves - 2; i >= 0; i--) {
     if (moves[i].reward >= 0) {
       finalReward += moves[i].reward
     }
@@ -121,9 +124,15 @@ function updateNetwork (gameAllMoves) {
 
     // printBoardVector(moves[i].boardVector)
 
+    const currentNetOutput = netConfig.net.run(moves[i].boardVector)[0]
+    const reward = moves[i].reward
+    const netOutputForNextMove = netConfig.net.run(moves[i + 1].boardVector)[0]
+
+    const experimentalFormula = currentNetOutput * (1 - netConfig.net.learningRate) + netConfig.net.learningRate * (reward + discountFactor * netOutputForNextMove)
+
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [moves[i].boardVector[0] + 0.85 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]]
+      netOutput: [sigmoidNormalize(experimentalFormula)]
     })
   }
 
@@ -161,26 +170,36 @@ let netConfig = {
 
 function create (learningRate, oldNetworkWeights) {
   function createHiddenLayers () {
-    return [500, 100]
+    return [100]
   }
 
   function constructNetworkInitialData (input, output) {
     const initialData = [{
       input: [],
       output: [1]
+    }, {
+      input: [],
+      output: [0]
     }]
     const vectorSize = constants.ai.COLUMN_COUNT * constants.ai.VECTOR_ROW_COUNT
+    // const vectorSize = 60 // using height inputs with hole vector
 
     for (let i = 0; i < vectorSize; i++) {
       initialData[0].input.push(0)
-      // initialData[1].input.push(1)
+      initialData[1].input.push(1)
     }
+
+    // // this means that there was a reward
+    // initialData[0].input.push(1)
+    // initialData[1].input.push(0)
 
     return initialData
   }
 
   if (oldNetworkWeights) {
-    netConfig.net = new brain.NeuralNetwork({})
+    console.log(JSON.parse(oldNetworkWeights))
+    // netConfig.net = new brain.NeuralNetwork({})
+    netConfig.net = new brain.NeuralNetwork()
     netConfig.net.fromJSON(JSON.parse(oldNetworkWeights))
   } else {
     netConfig = _.assign({}, netConfig, {
