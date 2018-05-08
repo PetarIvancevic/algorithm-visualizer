@@ -69,16 +69,18 @@ const aiTrackers = {
 // }
 
 function sigmoidNormalize (result) {
-  return result < 0 ? 0 : result
+  result = result < 0 ? 0 : result > 1 ? 1 : result
+  console.log('evo ga', result)
+  return result
 }
 
 // function reluNormalize (result) {
 //   return result > 10 ? 10 : result
 // }
 
-function moveNormalize (moveNum) {
-  return (moveNum / constants.ai.MAX_GAME_MOVES) * 0.5
-}
+// function moveNormalize (moveNum) {
+//   return (moveNum / constants.ai.MAX_GAME_MOVES) * 0.5
+// }
 
 function getNullVector () {
   let arr = []
@@ -109,7 +111,7 @@ function updateNetwork (gameAllMoves) {
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [sigmoidNormalize(moveNormalize(i + 1) + moves[i].reward + 0.95 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
+      netOutput: [sigmoidNormalize(moves[i].reward + 0.95 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
     })
   }
 
@@ -147,7 +149,7 @@ let netConfig = {
 
 function create (learningRate, oldNetworkWeights) {
   function createHiddenLayers () {
-    return [400, 100]
+    return [137]
   }
 
   function constructNetworkInitialData (input, output) {

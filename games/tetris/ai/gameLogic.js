@@ -71,8 +71,8 @@ function pushFullRowsDown (board, occupiedRows) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 function getMoveValue (fullRowCount, minimalRowIndex) {
-  if (minimalRowIndex < 4) {
-    return 0
+  if (minimalRowIndex < 1) {
+    return -0.4
   }
   return fullRowCount * 0.1
 }
