@@ -72,9 +72,9 @@ function pushFullRowsDown (board, occupiedRows) {
 
 function getMoveValue (fullRowCount, minimalRowIndex) {
   if (minimalRowIndex < 1) {
-    return -0.4
+    return 0
   }
-  return fullRowCount * 0.1
+  return fullRowCount * 1
 }
 
 /*

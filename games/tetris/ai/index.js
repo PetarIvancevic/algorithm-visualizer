@@ -70,7 +70,6 @@ const aiTrackers = {
 
 function sigmoidNormalize (result) {
   result = result < 0 ? 0 : result > 1 ? 1 : result
-  console.log('evo ga', result)
   return result
 }
 
@@ -101,6 +100,8 @@ function updateNetwork (gameAllMoves) {
   const trainingSets = []
   let finalReward = 0
 
+  const discountFactor = 0.85
+
   console.log('Training...')
   for (let i = 0; i < numMoves - 1; i++) {
     if (moves[i].reward >= 0) {
@@ -111,7 +112,7 @@ function updateNetwork (gameAllMoves) {
 
     trainingSets.push({
       boardVector: moves[i].boardVector,
-      netOutput: [sigmoidNormalize(moves[i].reward + 0.95 * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0])]
+      netOutput: [0.1 + moves[i].reward + discountFactor * netConfig.netNormalizedOutput(moves[i + 1].boardVector)[0]]
     })
   }
 
@@ -143,22 +144,22 @@ let netConfig = {
   netNormalizedOutput: function (input) {
     // return this.net.run(input)
     const netResult = this.net.run(input)
-    return netResult[0] > 0.6 ? [0.6] : netResult
+    return netResult[0] > 10 ? [10] : netResult
   }
 }
 
 function create (learningRate, oldNetworkWeights) {
   function createHiddenLayers () {
-    return [137]
+    return [800]
   }
 
   function constructNetworkInitialData (input, output) {
     const initialData = [{
       input: [],
-      output: [0]
+      output: [10]
     }, {
       input: [],
-      output: [1]
+      output: [0]
     }]
     const vectorSize = constants.ai.COLUMN_COUNT * constants.ai.VECTOR_ROW_COUNT
 
@@ -177,7 +178,7 @@ function create (learningRate, oldNetworkWeights) {
     netConfig = _.assign({}, netConfig, {
       net: new brain.NeuralNetwork({
         learningRate: _.toNumber(learningRate || netConfig.learningRate),
-        activation: 'sigmoid',
+        activation: 'leaky-relu',
         hiddenLayers: createHiddenLayers()
       })
     })

@@ -1,4 +1,4 @@
-const fixed500Moves = [
+let fixed500Moves = [
   'OBlock',
   'ZBlock',
   'IBlock',
@@ -500,5 +500,11 @@ const fixed500Moves = [
   'LBlock',
   'LBlock'
 ]
+
+fixed500Moves = []
+
+for (let i = 0; i < 600; i++) {
+  fixed500Moves.push('OBlock')
+}
 
 export default fixed500Moves

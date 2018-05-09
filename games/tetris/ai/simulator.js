@@ -121,8 +121,8 @@ function getBestMoveNode (tetrisGame, netConfig) {
 
     gameLogic.populateBoardWithActualMove(board, moveNode.block.occupiedPositions)
 
-    // let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
-    let moveValue = netConfig.net.run(moveNode.boardVector)[0]
+    let moveValue = reward + netConfig.net.run(moveNode.boardVector)[0]
+    // let moveValue = netConfig.net.run(moveNode.boardVector)[0]
 
     if (moveValue === bestMoves.moveValue) {
       bestMoves.sameValueMoveIndexes.push(index)
