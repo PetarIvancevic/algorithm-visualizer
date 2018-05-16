@@ -33,6 +33,7 @@ export const games = {
       SBlock: '#B03013',
       TBlock: '#EF7BB9',
       ZBlock: '#FC6601'
-    }
+    },
+    ROW_COUNT: 20
   }
 }

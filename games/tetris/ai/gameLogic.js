@@ -2,8 +2,6 @@ import _ from 'lodash'
 
 import constants from 'games/tetris/ai/constants'
 
-const BOARD_VECTOR_MAX_HEIGHT_INDEX = 20
-
 function pushFullRowsDown (board, occupiedRows) {
   let tempGameBoard = _.cloneDeep(board)
   let sortedOccupiedRows = _.clone(occupiedRows)
@@ -11,7 +9,7 @@ function pushFullRowsDown (board, occupiedRows) {
 
   function boardHasFullRows () {
     // we are just working with 4 rows
-    for (let row = BOARD_VECTOR_MAX_HEIGHT_INDEX; row >= 0; row--) {
+    for (let row = constants.ai.VECTOR_ROW_COUNT; row >= 0; row--) {
       let rowIsFull = true
 
       for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
@@ -46,7 +44,7 @@ function pushFullRowsDown (board, occupiedRows) {
   }
 
   while (boardHasFullRows()) {
-    for (let row = BOARD_VECTOR_MAX_HEIGHT_INDEX; row >= 0; row--) {
+    for (let row = constants.ai.VECTOR_ROW_COUNT; row >= 0; row--) {
       let isRowFull = true
 
       for (let column = 0; column < constants.ai.COLUMN_COUNT; column++) {
@@ -82,7 +80,7 @@ function getMoveValue (fullRowCount, minimalRowIndex) {
 */
 
 function getFirstRowIndex (board) {
-  for (let row = 0; row < 20; row++) {
+  for (let row = 0; row < constants.ai.ROW_COUNT; row++) {
     for (let column = 0; column < 10; column++) {
       if (board[column][row]) {
         return row
@@ -90,7 +88,7 @@ function getFirstRowIndex (board) {
     }
   }
 
-  return 20
+  return constants.ai.ROW_COUNT
 }
 
 function populateLowestFourYCoordsFromOccupiedPositions (board) {
@@ -98,7 +96,12 @@ function populateLowestFourYCoordsFromOccupiedPositions (board) {
   let occupiedRows = []
 
   if (firstRowIndex > 16) {
-    occupiedRows = [16, 17, 18, 19]
+    occupiedRows = [
+      constants.ai.ROW_COUNT - 4,
+      constants.ai.ROW_COUNT - 3,
+      constants.ai.ROW_COUNT - 2,
+      constants.ai.ROW_COUNT - 1
+    ]
   } else {
     occupiedRows = [firstRowIndex, firstRowIndex + 1, firstRowIndex + 2, firstRowIndex + 3]
   }

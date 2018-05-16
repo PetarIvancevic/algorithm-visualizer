@@ -27,10 +27,14 @@ export default class TetrisAITrain extends Component {
   }
 
   createNetwork () {
-    AI.create(this.learningRate.value, this.oldNetworkWeights.value)
+    const parsedData = _.map(JSON.parse(this.oldNetworkWeights.value), 'block')
+
+    console.log(parsedData)
+
+    AI.create(this.learningRate.value)
     this.oldNetworkWeights.value = null
     this.setState({
-      aiSimulatorMoves: [],
+      aiSimulatorMoves: parsedData,
       currentGame: 0,
       data: [],
       simulating: false
@@ -68,11 +72,12 @@ export default class TetrisAITrain extends Component {
 
     if (totalNumGames <= currentGame) return
 
-    let trainingData = await AI.train(currentGame + 1, totalNumGames)
+    // let trainingData = await AI.train(currentGame + 1, totalNumGames)
+
     await this.setState({
-      aiSimulatorMoves: trainingData.aiSimulatorMoves,
+      // aiSimulatorMoves: trainingData.aiSimulatorMoves,
       currentGame,
-      data: _.concat(this.state.data, trainingData.chartData),
+      // data: _.concat(this.state.data, trainingData.chartData),
       simulating: true
     })
   }

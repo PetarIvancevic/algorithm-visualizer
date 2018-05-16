@@ -6,13 +6,13 @@ const baseBlock = function (isRotationPossibleFn, blockType) {
   this.isMovable = true
   this.type = games.tetris.blockTypes[blockType]
 
-  this.advance = function (checkCollision, boardHeight = 20) {
+  this.advance = function (checkCollision, boardHeight = games.tetris.ROW_COUNT) {
     let occupiedPositionsSize = _.size(this.occupiedPositions)
 
     for (let i = 0; i < occupiedPositionsSize; i++) {
       let newYPosition = this.occupiedPositions[i].y + 1
 
-      if (newYPosition === 20 || checkCollision(this.occupiedPositions[i].x, newYPosition)) {
+      if (newYPosition === games.tetris.ROW_COUNT || checkCollision(this.occupiedPositions[i].x, newYPosition)) {
         this.isMovable = false
         break
       }

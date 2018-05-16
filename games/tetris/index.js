@@ -2,7 +2,7 @@ import _size from 'lodash/size'
 // import _keys from 'lodash/keys'
 // import _random from 'lodash/random'
 import gameBlocks from './components'
-// import {games} from 'constants'
+import {games} from 'constants'
 
 import fixed500Moves from 'games/tetris/ai/theFixed500Moves'
 
@@ -95,7 +95,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
 
   const createGameBoard = function () {
     for (let i = 0; i < 10; i++) {
-      gameBoard[i] = new Array(20)
+      gameBoard[i] = new Array(games.tetris.ROW_COUNT)
     }
   }
 
@@ -133,7 +133,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     for (let i = 0; i < _size(positions); i++) {
       let {x, y} = positions[i]
 
-      if (positions[i].x < 0 || positions[i].x > 9 || positions[i].y < 0 || positions[i].y > 19) {
+      if (positions[i].x < 0 || positions[i].x > 9 || positions[i].y < 0 || positions[i].y > (games.tetris.ROW_COUNT)) {
         return false
       }
 
@@ -185,7 +185,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
     }
 
     while (getFullRowsCount(tempGameBoard)) {
-      for (let i = 19; i >= 0; i--) {
+      for (let i = (games.tetris.ROW_COUNT); i >= 0; i--) {
         let isRowFull = true
 
         for (let j = 0; j < 10; j++) {
@@ -207,7 +207,7 @@ const Game = function (difficulty, AI = false, shouldSetNextBlock = true) {
   const getFullRowsCount = function (tempGameBoard = gameBoard) {
     let numberOfFullRows = 0
 
-    for (let i = 19; i >= 0; i--) {
+    for (let i = (games.tetris.ROW_COUNT); i >= 0; i--) {
       let isRowFull = true
 
       for (let j = 0; j < 10; j++) {
